@@ -77,7 +77,6 @@ final class FacetComponent implements FacetComponentInterface
         return new ArrayIterator($this->facets);
     }
 
-
     /**
      * @param string $field
      * @param null   $value
@@ -94,5 +93,13 @@ final class FacetComponent implements FacetComponentInterface
     public function count(): int
     {
         return count($this->facets);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
+    {
+        return 'facets';
     }
 }

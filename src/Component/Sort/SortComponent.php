@@ -80,4 +80,12 @@ final class SortComponent implements SortComponentInterface
     {
         return new ArrayIterator($this->sorts);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
+    {
+        return 'sorting';
+    }
 }

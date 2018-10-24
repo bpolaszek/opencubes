@@ -83,4 +83,12 @@ final class FilterComponent implements FilterComponentInterface
     {
         return new ArrayIterator($this->filters);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
+    {
+        return 'filters';
+    }
 }

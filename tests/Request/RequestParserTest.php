@@ -27,16 +27,16 @@ class RequestParserTest extends TestCase
         ], [$sortComponent]);
 
         $components = iterable_to_array($requestParser->getComponents($request));
-        $this->assertInstanceOf(FilterComponentInterface::class, $components[0]);
-        $this->assertInstanceOf(SortComponentInterface::class, $components[1]);
+        $this->assertInstanceOf(FilterComponentInterface::class, $components['filters']);
+        $this->assertInstanceOf(SortComponentInterface::class, $components['sorting']);
 
         /** @var FilterComponent $filters */
-        $filters = $components[0];
+        $filters = $components['filters'];
         $this->assertTrue($filters->has('status'));
         $this->assertEquals('active', $filters->get('status')->getValue());
 
         /** @var SortComponent $sorts */
-        $sorts = $components[1];
+        $sorts = $components['sorting'];
         $this->assertTrue($sorts->has('createdBy'));
         $this->assertTrue($sorts->has('foo'));
         $this->assertEquals([

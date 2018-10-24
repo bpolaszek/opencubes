@@ -42,10 +42,12 @@ final class RequestParser
         foreach ($this->requestParsers as $requestParser) {
             if ($this->hasComponent($requestParser)) {
                 foreach ($this->getMatchingComponents($requestParser) as $component) {
-                    yield $requestParser->parseRequest($request, $component);
+                    $component = $requestParser->parseRequest($request, $component);
+                    yield $component->getName() => $component;
                 }
             } else {
-                yield $requestParser->parseRequest($request);
+                $component = $requestParser->parseRequest($request);
+                yield $component->getName() => $component;
             }
         }
     }

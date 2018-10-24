@@ -82,4 +82,12 @@ final class DrilldownComponent implements DrilldownComponentInterface
     {
         return new ArrayIterator($this->dimensions);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
+    {
+        return 'drilldown';
+    }
 }
