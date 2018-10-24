@@ -13,23 +13,21 @@ class DrilldownComponentTest extends TestCase
     public function testWithDimension()
     {
         $component = new DrilldownComponent();
-        $clone = $component->withDimension(new Dimension('foo'));
-        $this->assertNotSame($component, $clone);
-        $this->assertCount(1, $clone);
-        $this->assertTrue($clone->hasDimension('foo'));
-        $this->assertInstanceOf(DimensionInterface::class, $clone->getDimension('foo'));
-        $this->assertFalse($clone->hasDimension('bar'));
-        $this->assertNull($clone->getDimension('bar'));
+        $component->add(new Dimension('foo'));
+        $this->assertCount(1, $component);
+        $this->assertTrue($component->has('foo'));
+        $this->assertInstanceOf(DimensionInterface::class, $component->get('foo'));
+        $this->assertFalse($component->has('bar'));
+        $this->assertNull($component->get('bar'));
     }
 
-    public function testWithAddedDimension()
+    public function testAdd()
     {
         $component = new DrilldownComponent([new Dimension('bar')]);
-        $clone = $component->withAddedDimension(new Dimension('foo'));
-        $this->assertNotSame($component, $clone);
-        $this->assertCount(2, $clone);
-        $this->assertTrue($clone->hasDimension('foo'));
-        $this->assertTrue($clone->hasDimension('bar'));
+        $component->add(new Dimension('foo'));
+        $this->assertCount(2, $component);
+        $this->assertTrue($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
     }
 
     public function testWithoutDimension()
@@ -38,14 +36,13 @@ class DrilldownComponentTest extends TestCase
             new Dimension('foo'),
             new Dimension('bar')
         ]);
-        $clone = $component->withoutDimension(new Dimension('foo'));
-        $this->assertNotSame($component, $clone);
-        $this->assertCount(1, $clone);
-        $this->assertFalse($clone->hasDimension('foo'));
-        $this->assertTrue($clone->hasDimension('bar'));
+        $component->remove(new Dimension('foo'));
+        $this->assertCount(1, $component);
+        $this->assertFalse($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
     }
 
-    public function testGetDimensions()
+    public function testgets()
     {
         $dimensions = [
             new Dimension('foo'),
@@ -53,7 +50,7 @@ class DrilldownComponentTest extends TestCase
         ];
 
         $component = new DrilldownComponent($dimensions);
-        $this->assertEquals(array_combine(['foo', 'bar'], $dimensions), $component->getDimensions());
+        $this->assertEquals(array_combine(['foo', 'bar'], $dimensions), $component->all());
     }
     
 }

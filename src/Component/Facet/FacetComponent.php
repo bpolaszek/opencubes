@@ -2,6 +2,7 @@
 
 namespace BenTools\OpenCubes\Component\Facet;
 
+use ArrayIterator;
 use BenTools\OpenCubes\Component\Filter\FilterComponentInterface;
 
 final class FacetComponent implements FacetComponentInterface
@@ -18,84 +19,73 @@ final class FacetComponent implements FacetComponentInterface
      */
     public function __construct(array $facets = [])
     {
-        $facets = (function (FacetInterface ...$facets) {
-            return $facets;
-        })(...$facets);
         foreach ($facets as $facet) {
-            $this->facets[$facet->getField()] = $facet;
+            $this->add($facet);
         }
     }
 
-    /**
-     * @param FacetInterface[] ...$facets
-     * @return FacetComponentInterface
-     */
-    public function withFacet(FacetInterface ...$facets): FacetComponentInterface
+    public function clear(): void
     {
-        return new self($facets);
+        $this->facets = [];
     }
 
     /**
      * @inheritDoc
      */
-    public function withAddedFacet(FacetInterface ...$facets): FacetComponentInterface
+    public function add(FacetInterface $facet): void
     {
-        $clone = clone $this;
-        foreach ($facets as $facet) {
-            $clone->facets[$facet->getField()] = $facet;
-        }
-        return $clone;
+        $this->facets[$facet->getField()] = $facet;
     }
 
     /**
      * @inheritDoc
      */
-    public function withoutFacet(FacetInterface ...$facets): FacetComponentInterface
+    public function remove(FacetInterface $facet): void
     {
-        $clone = clone $this;
-        foreach ($facets as $facet) {
-            unset($clone->facets[$facet->getField()]);
-        }
-        return $clone;
+        unset($this->facets[$facet->getField()]);
     }
 
     /**
-     * @return FacetInterface[]
+     * @inheritDoc
      */
-    public function getFacets(): array
+    public function all(): array
     {
         return $this->facets;
     }
 
     /**
-     * @param string $field
-     * @return FacetInterface|null
+     * @inheritDoc
      */
-    public function getFacet(string $field): ?FacetInterface
+    public function get(string $field): ?FacetInterface
     {
         return $this->facets[$field] ?? null;
     }
 
     /**
-     * @param string $field
-     * @return bool
+     * @inheritDoc
      */
-    public function hasFacet(string $field): bool
+    public function has(string $field): bool
     {
         return isset($this->facets[$field]);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->facets);
+    }
+
 
     /**
      * @param string $field
      * @param null   $value
      * @return bool
      */
-    public function isFacetApplied(FilterComponentInterface $filterComponent, string $field, FacetValue $value = null): bool
+    public function isApplied(FilterComponentInterface $filterComponent, string $field, FacetValue $value = null): bool
     {
-        if (2 === func_num_args()) {
-            return $this->hasFacet($field) && $filterComponent->isFilterApplied($field);
-        }
-        return $this->hasFacet($field) && $filterComponent->isFilterApplied($field, $value->getValue());
+        // todo
     }
 
     /**

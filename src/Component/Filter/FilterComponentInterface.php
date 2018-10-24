@@ -4,54 +4,48 @@ namespace BenTools\OpenCubes\Component\Filter;
 
 use BenTools\OpenCubes\Component\ComponentInterface;
 use Countable;
+use IteratorAggregate;
 
-interface FilterComponentInterface extends ComponentInterface, Countable
+interface FilterComponentInterface extends ComponentInterface, Countable, IteratorAggregate
 {
-    /**
-     * @param FilterInterface[] $filters
-     * @return FilterComponentInterface
-     */
-    public function withFilter(FilterInterface ...$filters): FilterComponentInterface;
+
+    public function clear(): void;
 
     /**
-     * @param array $filters
-     * @return FilterComponentInterface
+     * @param FilterInterface $filter
      */
-    public function withAddedFilter(FilterInterface ...$filters): FilterComponentInterface;
+    public function add(FilterInterface $filter): void;
 
     /**
-     * @param array $filters
-     * @return FilterComponentInterface
+     * @param FilterInterface $filter
      */
-    public function withoutFilter(FilterInterface ...$filters): FilterComponentInterface;
+    public function remove(FilterInterface $filter): void;
 
     /**
      * @return FilterInterface[]
      */
-    public function getFilters(): array;
+    public function all(): array;
 
     /**
      * @param string $field
      * @return FilterInterface|null
      */
-    public function getFilter(string $field): ?FilterInterface;
+    public function get(string $field): ?FilterInterface;
 
     /**
      * @param string $field
      * @return bool
      */
-    public function hasFilter(string $field): bool;
-
-    /**
-     * @param string $field
-     * @param null   $value
-     * @return bool
-     */
-    public function isFilterApplied(string $field, $value = null): bool;
+    public function has(string $field): bool;
 
     /**
      * Return the number of filters.
      * @return int
      */
     public function count(): int;
+
+    /**
+     * @return FilterInterface[]
+     */
+    public function getIterator();
 }

@@ -60,11 +60,11 @@ final class DrilldownRequestParser implements RequestParserInterface
             return $component;
         }
 
-        $dimensions = array_map(function (string $dimension): DimensionInterface {
-            return new Dimension($dimension);
-        }, $dimensions);
+        foreach ($dimensions as $field) {
+            $component->add(new Dimension($field));
+        }
 
-        return $component->withAddedDimension(...$dimensions);
+        return $component;
     }
 
     /**

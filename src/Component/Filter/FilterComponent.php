@@ -2,95 +2,70 @@
 
 namespace BenTools\OpenCubes\Component\Filter;
 
+use ArrayIterator;
+
 final class FilterComponent implements FilterComponentInterface
 {
 
-    /**
-     * @var FilterInterface[]
-     */
     private $filters = [];
 
     /**
      * FilterComponent constructor.
-     * @param FilterInterface[] ...$filters
+     * @param array $filters
      */
-    public function __construct(FilterInterface ...$filters)
+    public function __construct(array $filters = [])
     {
         foreach ($filters as $filter) {
-            $this->filters[$filter->getField()] = $filter;
+            $this->add($filter);
         }
-    }
-
-    /**
-     * @param FilterInterface[] ...$filters
-     * @return FilterComponentInterface
-     */
-    public function withFilter(FilterInterface ...$filters): FilterComponentInterface
-    {
-        return new self(...$filters);
     }
 
     /**
      * @inheritDoc
      */
-    public function withAddedFilter(FilterInterface ...$filters): FilterComponentInterface
+    public function clear(): void
     {
-        $clone = clone $this;
-        foreach ($filters as $filter) {
-            $clone->filters[$filter->getField()] = $filter;
-        }
-        return $clone;
+        $this->filters = [];
     }
 
     /**
      * @inheritDoc
      */
-    public function withoutFilter(FilterInterface ...$filters): FilterComponentInterface
+    public function add(FilterInterface $filter): void
     {
-        $clone = clone $this;
-        foreach ($filters as $filter) {
-            unset($clone->filters[$filter->getField()]);
-        }
-        return $clone;
+        $this->filters[$filter->getField()] = $filter;
     }
 
     /**
-     * @return FilterInterface[]
+     * @inheritDoc
      */
-    public function getFilters(): array
+    public function remove(FilterInterface $filter): void
+    {
+        unset($this->filters[$filter->getField()]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function all(): array
     {
         return $this->filters;
     }
 
     /**
-     * @param string $field
-     * @return FilterInterface|null
+     * @inheritDoc
      */
-    public function getFilter(string $field): ?FilterInterface
+    public function get(string $field): ?FilterInterface
     {
         return $this->filters[$field] ?? null;
     }
 
     /**
-     * @param string $field
-     * @return bool
+     * @inheritDoc
      */
-    public function hasFilter(string $field): bool
+    public function has(string $field): bool
     {
         return isset($this->filters[$field]);
-    }
-
-    /**
-     * @param string $field
-     * @param null   $value
-     * @return bool
-     */
-    public function isFilterApplied(string $field, $value = null): bool
-    {
-        if (1 === func_num_args()) {
-            return $this->hasFilter($field);
-        }
-        return $this->hasFilter($field) && $this->getFilter($field)->isApplied($value);
     }
 
     /**
@@ -99,5 +74,13 @@ final class FilterComponent implements FilterComponentInterface
     public function count(): int
     {
         return count($this->filters);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->filters);
     }
 }

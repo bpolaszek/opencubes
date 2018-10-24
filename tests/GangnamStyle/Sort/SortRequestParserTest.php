@@ -18,10 +18,10 @@ class SortRequestParserTest extends TestCase
 
         $component = $parser->parseRequest($request);
         $this->assertCount(2, $component);
-        $this->assertTrue($component->hasSort('foo'));
-        $this->assertTrue($component->hasSort('bar'));
-        $this->assertTrue($component->getSort('foo')->isAsc());
-        $this->assertTrue($component->getSort('bar')->isDesc());
+        $this->assertTrue($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
+        $this->assertTrue($component->get('foo')->isAsc());
+        $this->assertTrue($component->get('bar')->isDesc());
     }
 
     public function testSupportsComponent()

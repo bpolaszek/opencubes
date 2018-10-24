@@ -18,9 +18,9 @@ class DrilldownRequestParserTest extends TestCase
 
         $component = $parser->parseRequest($request);
         $this->assertCount(2, $component);
-        $this->assertTrue($component->hasDimension('foo'));
-        $this->assertTrue($component->hasDimension('bar'));
-        $this->assertFalse($component->hasDimension('baz'));
+        $this->assertTrue($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
+        $this->assertFalse($component->has('baz'));
     }
 
     public function testSupportsComponent()

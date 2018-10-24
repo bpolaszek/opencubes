@@ -9,68 +9,58 @@ use PHPUnit\Framework\TestCase;
 class FilterComponentTest extends TestCase
 {
 
-    public function testWithFilter()
+    public function testConstruct()
     {
-        $component = new FilterComponent(new SimpleFilter('foo', 'bar'));
-        $clone = $component->withFilter(new SimpleFilter('bar', 'foo'));
-        $this->assertNotSame($clone, $component);
-        $this->assertCount(1, $clone);
-        $this->assertFalse($clone->hasFilter('foo'));
-        $this->assertTrue($clone->hasFilter('bar'));
-        $this->assertInstanceOf(SimpleFilter::class, $clone->getFilter('bar'));
+        $component = new FilterComponent([new SimpleFilter('foo', 'bar')]);
+        $this->assertCount(1, $component);
+        $this->assertTrue($component->has('foo'));
+        $this->assertFalse($component->has('bar'));
+        $this->assertInstanceOf(SimpleFilter::class, $component->get('foo'));
+        $this->assertNull($component->get('bar'));
     }
 
-    public function testWithAddedFilter()
+    public function testaddFilter()
     {
-        $component = new FilterComponent(new SimpleFilter('foo', 'bar'));
-        $clone = $component->withAddedFilter(new SimpleFilter('bar', 'foo'));
-        $this->assertNotSame($clone, $component);
-        $this->assertCount(2, $clone);
-        $this->assertTrue($clone->hasFilter('foo'));
-        $this->assertTrue($clone->hasFilter('bar'));
+        $component = new FilterComponent([new SimpleFilter('foo', 'bar')]);
+        $component->add(new SimpleFilter('bar', 'foo'));
+        $this->assertCount(2, $component);
+        $this->assertTrue($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
     }
 
     public function testWithoutFilter()
     {
-        $component = new FilterComponent(new SimpleFilter('foo', 'bar'), new SimpleFilter('bar', 'foo'));
-        $clone = $component->withoutFilter(new SimpleFilter('bar', 'foo'));
-        $this->assertNotSame($clone, $component);
-        $this->assertCount(1, $clone);
-        $this->assertFalse($clone->hasFilter('bar'));
-        $this->assertTrue($clone->hasFilter('foo'));
+        $component = new FilterComponent([
+            new SimpleFilter('foo', 'bar'),
+            new SimpleFilter('bar', 'foo'),
+        ]);
+        $component->remove(new SimpleFilter('bar', 'foo'));
+        $this->assertCount(1, $component);
+        $this->assertFalse($component->has('bar'));
+        $this->assertTrue($component->has('foo'));
     }
 
-    public function testGetFilters()
+    public function testAll()
     {
         $filters = [
             new SimpleFilter('color', 'red'),
             new SimpleFilter('shape', 'round'),
         ];
-        $component = new FilterComponent(...$filters);
+        $component = new FilterComponent($filters);
         $expected = array_combine(['color', 'shape'], $filters);
-        $this->assertEquals($expected, $component->getFilters());
+        $this->assertEquals($expected, $component->all());
     }
 
-    public function testGetFilter()
+    public function testget()
     {
         $filter = new SimpleFilter('foo', 'bar');
-        $component = new FilterComponent($filter);
-        $this->assertEquals($filter, $component->getFilter('foo'));
+        $component = new FilterComponent([$filter]);
+        $this->assertEquals($filter, $component->get('foo'));
     }
 
-    public function testHasFilter()
+    public function testhas()
     {
-        $component = new FilterComponent(new SimpleFilter('foo', 'bar'));
-        $this->assertTrue($component->hasFilter('foo'));
-    }
-
-    public function testIsFilterApplied()
-    {
-        $component = new FilterComponent(new SimpleFilter('foo', 'bar'));
-        $this->assertTrue($component->isFilterApplied('foo'));
-        $this->assertFalse($component->isFilterApplied('bar'));
-        $this->assertTrue($component->isFilterApplied('foo', 'bar'));
-        $this->assertFalse($component->isFilterApplied('foo', 'baz'));
-        $this->assertFalse($component->isFilterApplied('foo', null));
+        $component = new FilterComponent([new SimpleFilter('foo', 'bar')]);
+        $this->assertTrue($component->has('foo'));
     }
 }

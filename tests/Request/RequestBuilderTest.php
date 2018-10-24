@@ -18,7 +18,7 @@ class RequestBuilderTest extends TestCase
     public function testBuildRequest()
     {
         $components = [
-            new FilterComponent(new SimpleFilter('status', 'active')),
+            new FilterComponent([new SimpleFilter('status', 'active')]),
             new SortComponent([new Sort('createdBy', Sort::SORT_ASC)])
         ];
 

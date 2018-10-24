@@ -32,16 +32,16 @@ class RequestParserTest extends TestCase
 
         /** @var FilterComponent $filters */
         $filters = $components[0];
-        $this->assertTrue($filters->hasFilter('status'));
-        $this->assertEquals('active', $filters->getFilter('status')->getValue());
+        $this->assertTrue($filters->has('status'));
+        $this->assertEquals('active', $filters->get('status')->getValue());
 
         /** @var SortComponent $sorts */
         $sorts = $components[1];
-        $this->assertTrue($sorts->hasSort('createdBy'));
-        $this->assertTrue($sorts->hasSort('foo'));
+        $this->assertTrue($sorts->has('createdBy'));
+        $this->assertTrue($sorts->has('foo'));
         $this->assertEquals([
             'foo'       => new Sort('foo', Sort::SORT_DESC),
             'createdBy' => new Sort('createdBy', Sort::SORT_ASC)
-        ], $sorts->getSorts());
+        ], $sorts->all());
     }
 }

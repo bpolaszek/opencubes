@@ -2,6 +2,8 @@
 
 namespace BenTools\OpenCubes\Component\Drilldown;
 
+use ArrayIterator;
+
 final class DrilldownComponent implements DrilldownComponentInterface
 {
     /**
@@ -11,54 +13,40 @@ final class DrilldownComponent implements DrilldownComponentInterface
 
     /**
      * DrilldownComponent constructor.
-     * @param array $dimensions
+     * @param DimensionInterface[] $dimensions
      */
     public function __construct(array $dimensions = [])
     {
-        $dimensions = (function (DimensionInterface ...$dimensions) {
-            return $dimensions;
-        })(...$dimensions);
         foreach ($dimensions as $dimension) {
-            $this->dimensions[$dimension->getField()] = $dimension;
+            $this->add($dimension);
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function withDimension(DimensionInterface ...$dimensions): DrilldownComponentInterface
+    public function clear(): void
     {
-        return new self($dimensions);
+        $this->dimensions = [];
     }
 
     /**
      * @inheritDoc
      */
-    public function withAddedDimension(DimensionInterface ...$dimensions): DrilldownComponentInterface
+    public function add(DimensionInterface $dimension): void
     {
-        $clone = clone $this;
-        foreach ($dimensions as $dimension) {
-            $clone->dimensions[$dimension->getField()] = $dimension;
-        }
-        return $clone;
+        $this->dimensions[$dimension->getField()] = $dimension;
     }
 
     /**
      * @inheritDoc
      */
-    public function withoutDimension(DimensionInterface ...$dimensions): DrilldownComponentInterface
+    public function remove(DimensionInterface $dimension): void
     {
-        $clone = clone $this;
-        foreach ($dimensions as $dimension) {
-            unset($clone->dimensions[$dimension->getField()]);
-        }
-        return $clone;
+        unset($this->dimensions[$dimension->getField()]);
     }
 
     /**
      * @inheritDoc
      */
-    public function getDimensions(): array
+    public function all(): array
     {
         return $this->dimensions;
     }
@@ -66,7 +54,7 @@ final class DrilldownComponent implements DrilldownComponentInterface
     /**
      * @inheritDoc
      */
-    public function getDimension(string $field): ?DimensionInterface
+    public function get(string $field): ?DimensionInterface
     {
         return $this->dimensions[$field] ?? null;
     }
@@ -74,7 +62,7 @@ final class DrilldownComponent implements DrilldownComponentInterface
     /**
      * @inheritDoc
      */
-    public function hasDimension(string $field): bool
+    public function has(string $field): bool
     {
         return isset($this->dimensions[$field]);
     }
@@ -85,5 +73,13 @@ final class DrilldownComponent implements DrilldownComponentInterface
     public function count(): int
     {
         return count($this->dimensions);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->dimensions);
     }
 }

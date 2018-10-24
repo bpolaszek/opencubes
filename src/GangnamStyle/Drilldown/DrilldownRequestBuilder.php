@@ -69,7 +69,7 @@ final class DrilldownRequestBuilder implements RequestBuilderInterface
         $qs = query_string($request->getUri(), $this->queryStringParser)->withRenderer($this->queryStringRenderer);
         $dimensions = $qs->getParam($this->qsParam) ?? [];
 
-        if (0 === count($component->getDimensions()) && 0 === count($dimensions)) {
+        if (0 === count($component) && 0 === count($dimensions)) {
             return $request->withUri(
                 $request->getUri()->withQuery(
                     (string) $qs->withoutParam($this->qsParam)
@@ -77,7 +77,7 @@ final class DrilldownRequestBuilder implements RequestBuilderInterface
             );
         }
 
-        foreach ($component->getDimensions() as $dimension) {
+        foreach ($component as $dimension) {
             if (!in_array($dimension, $dimensions)) {
                 $dimensions[] = $dimension->getField();
             }

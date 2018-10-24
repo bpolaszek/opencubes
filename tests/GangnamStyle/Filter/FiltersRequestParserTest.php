@@ -22,19 +22,19 @@ class FiltersRequestParserTest extends TestCase
         $this->assertTrue($parser->supportsComponent(new FilterComponent()));
 
         $component = $parser->parseRequest($request);
-        $this->assertTrue($component->hasFilter('status'));
-        $this->assertTrue($component->hasFilter('assignee'));
-        $this->assertTrue($component->hasFilter('date'));
-        $this->assertFalse($component->hasFilter('updatedAt'));
+        $this->assertTrue($component->has('status'));
+        $this->assertTrue($component->has('assignee'));
+        $this->assertTrue($component->has('date'));
+        $this->assertFalse($component->has('updatedAt'));
 
-        $this->assertInstanceOf(CollectionFilterInterface::class, $component->getFilter('status'));
-        $this->assertCount(3, $component->getFilter('status'));
-        $this->assertEquals(['pending', 'reopened', 'awaiting'], $component->getFilter('status')->getValues());
+        $this->assertInstanceOf(CollectionFilterInterface::class, $component->get('status'));
+        $this->assertCount(3, $component->get('status'));
+        $this->assertEquals(['pending', 'reopened', 'awaiting'], $component->get('status')->getValues());
 
-        $this->assertInstanceOf(SimpleFilter::class, $component->getFilter('assignee'));
-        $this->assertEquals('me', $component->getFilter('assignee')->getValue());
+        $this->assertInstanceOf(SimpleFilter::class, $component->get('assignee'));
+        $this->assertEquals('me', $component->get('assignee')->getValue());
 
-        $this->assertInstanceOf(RangeFilter::class, $component->getFilter('date'));
+        $this->assertInstanceOf(RangeFilter::class, $component->get('date'));
     }
 
     /**
@@ -53,7 +53,7 @@ class FiltersRequestParserTest extends TestCase
         $parser = new FiltersRequestParser('f');
         $component = $parser->parseRequest($request);
         /** @var RangeFilter $filter */
-        $filter = $component->getFilter('date');
+        $filter = $component->get('date');
         $this->assertEquals($expectedLeft, $filter->getLeft());
         $this->assertEquals($expectedRight, $filter->getRight());
     }

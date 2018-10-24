@@ -75,12 +75,11 @@ final class FiltersRequestParser implements RequestParserInterface
             return $component;
         }
 
-        $filters = [];
         foreach ($rawFilters as $key => $value) {
-            $filters[] = $this->createFilter($key, $value);
+            $component->add($this->createFilter($key, $value));
         }
 
-        return $component->withAddedFilter(...$filters);
+        return $component;
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace BenTools\OpenCubes\Component\Sort;
 
+use ArrayIterator;
+
 final class SortComponent implements SortComponentInterface
 {
 
@@ -13,50 +15,36 @@ final class SortComponent implements SortComponentInterface
      */
     public function __construct(array $sorts = [])
     {
-        $sorts = (function (SortInterface ...$sorts) {
-            return $sorts;
-        })(...$sorts);
         foreach ($sorts as $sort) {
-            $this->sorts[$sort->getField()] = $sort;
+            $this->add($sort);
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function withSort(SortInterface ...$sorts): SortComponentInterface
+    public function clear(): void
     {
-        return new self($sorts);
+        $this->sorts = [];
     }
 
     /**
      * @inheritDoc
      */
-    public function withAddedSort(SortInterface ...$sorts): SortComponentInterface
+    public function add(SortInterface $sort): void
     {
-        $clone = clone $this;
-        foreach ($sorts as $sort) {
-            $clone->sorts[$sort->getField()] = $sort;
-        }
-        return $clone;
+        $this->sorts[$sort->getField()] = $sort;
     }
 
     /**
      * @inheritDoc
      */
-    public function withoutSort(SortInterface ...$sorts): SortComponentInterface
+    public function remove(SortInterface $sort): void
     {
-        $clone = clone $this;
-        foreach ($sorts as $sort) {
-            unset($clone->sorts[$sort->getField()]);
-        }
-        return $clone;
+        unset($this->sorts[$sort->getField()]);
     }
 
     /**
      * @inheritDoc
      */
-    public function getSorts(): array
+    public function all(): array
     {
         return $this->sorts;
     }
@@ -64,7 +52,7 @@ final class SortComponent implements SortComponentInterface
     /**
      * @inheritDoc
      */
-    public function getSort(string $field): ?SortInterface
+    public function get(string $field): ?SortInterface
     {
         return $this->sorts[$field] ?? null;
     }
@@ -72,7 +60,7 @@ final class SortComponent implements SortComponentInterface
     /**
      * @inheritDoc
      */
-    public function hasSort(string $field): bool
+    public function has(string $field): bool
     {
         return isset($this->sorts[$field]);
     }
@@ -83,5 +71,13 @@ final class SortComponent implements SortComponentInterface
     public function count(): int
     {
         return count($this->sorts);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->sorts);
     }
 }

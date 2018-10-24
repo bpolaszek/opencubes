@@ -76,7 +76,7 @@ final class SortRequestBuilder implements RequestBuilderInterface
         $qs = query_string($request->getUri(), $this->queryStringParser)->withRenderer($this->queryStringRenderer);
         $sorts = $qs->getParam($this->qsParam) ?? [];
 
-        if (0 === count($component->getSorts()) && 0 === count($sorts)) {
+        if (0 === count($component) && 0 === count($sorts)) {
             return $request->withUri(
                 $request->getUri()->withQuery(
                     (string) $qs->withoutParam($this->qsParam)
@@ -84,7 +84,7 @@ final class SortRequestBuilder implements RequestBuilderInterface
             );
         }
 
-        foreach ($component->getSorts() as $sort) {
+        foreach ($component as $sort) {
             $sorts[$sort->getField()] = $this->humanizeDirection($sort);
         }
 

@@ -82,7 +82,7 @@ final class FiltersRequestBuilder implements RequestBuilderInterface
         $qs = query_string($request->getUri(), $this->queryStringParser)->withRenderer($this->queryStringRenderer);
         $filters = $qs->getParam($this->qsParam) ?? [];
 
-        if (0 === count($component->getFilters()) && 0 === count($filters)) {
+        if (0 === count($component) && 0 === count($filters)) {
             return $request->withUri(
                 $request->getUri()->withQuery(
                     (string) $qs->withoutParam($this->qsParam)
@@ -90,7 +90,7 @@ final class FiltersRequestBuilder implements RequestBuilderInterface
             );
         }
 
-        foreach ($component->getFilters() as $filter) {
+        foreach ($component as $filter) {
             $this->hydrateFilter($filter, $filters);
         }
 

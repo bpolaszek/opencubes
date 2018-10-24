@@ -5,44 +5,39 @@ namespace BenTools\OpenCubes\Component\Facet;
 use BenTools\OpenCubes\Component\ComponentInterface;
 use BenTools\OpenCubes\Component\Filter\FilterComponentInterface;
 use Countable;
+use IteratorAggregate;
 
-interface FacetComponentInterface extends ComponentInterface, Countable
+interface FacetComponentInterface extends ComponentInterface, Countable, IteratorAggregate
 {
 
-    /**
-     * @param FacetInterface[] $facets
-     * @return FacetComponentInterface
-     */
-    public function withFacet(FacetInterface ...$facets): FacetComponentInterface;
+    public function clear(): void;
 
     /**
-     * @param array $facets
-     * @return FacetComponentInterface
+     * @param FacetInterface $facet
      */
-    public function withAddedFacet(FacetInterface ...$facets): FacetComponentInterface;
+    public function add(FacetInterface $facet): void;
 
     /**
-     * @param array $facets
-     * @return FacetComponentInterface
+     * @param FacetInterface $facet
      */
-    public function withoutFacet(FacetInterface ...$facets): FacetComponentInterface;
+    public function remove(FacetInterface $facet) :void;
 
     /**
      * @return FacetInterface[]
      */
-    public function getFacets(): array;
+    public function all(): array;
 
     /**
      * @param string $field
      * @return FacetInterface|null
      */
-    public function getFacet(string $field): ?FacetInterface;
+    public function get(string $field): ?FacetInterface;
 
     /**
      * @param string $field
      * @return bool
      */
-    public function hasFacet(string $field): bool;
+    public function has(string $field): bool;
 
     /**
      * @param FilterComponentInterface $filterComponent
@@ -50,11 +45,17 @@ interface FacetComponentInterface extends ComponentInterface, Countable
      * @param FacetValue|null          $value
      * @return bool
      */
-    public function isFacetApplied(FilterComponentInterface $filterComponent, string $field, FacetValue $value = null): bool;
+    public function isApplied(FilterComponentInterface $filterComponent, string $field, FacetValue $value = null): bool;
 
     /**
      * Return the number of facets.
      * @return int
      */
     public function count(): int;
+
+
+    /**
+     * @return FacetInterface[]
+     */
+    public function getIterator();
 }

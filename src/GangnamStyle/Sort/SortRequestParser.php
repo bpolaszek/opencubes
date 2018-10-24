@@ -65,12 +65,11 @@ final class SortRequestParser implements RequestParserInterface
         $qs = query_string($request->getUri(), $this->queryStringParser)->withRenderer($this->queryStringRenderer);
         $values = $qs->getParam($this->qsParam) ?? [];
 
-        $sorts = [];
         foreach ($values as $field => $direction) {
-            $sorts[] = new Sort($field, $this->parseDirection($direction, $field));
+            $component->add(new Sort($field, $this->parseDirection($direction, $field)));
         }
 
-        return $component->withAddedSort(...$sorts);
+        return $component;
     }
 
     /**

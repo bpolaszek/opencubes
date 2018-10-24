@@ -16,7 +16,7 @@ class FiltersRequestBuilderTest extends TestCase
 
     public function testBuildRequest()
     {
-        $component = new FilterComponent(...[
+        $component = new FilterComponent([
             new CompositeFilter('status', [
                 new SimpleFilter('status', 'pending'),
                 new SimpleFilter('status', 'reopened'),

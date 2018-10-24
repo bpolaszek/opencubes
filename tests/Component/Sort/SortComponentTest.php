@@ -13,36 +13,33 @@ class SortComponentTest extends TestCase
     public function testWithSort()
     {
         $component = new SortComponent();
-        $clone = $component->withSort(new Sort('foo'));
-        $this->assertNotSame($component, $clone);
-        $this->assertCount(1, $clone);
-        $this->assertTrue($clone->hasSort('foo'));
-        $this->assertInstanceOf(SortInterface::class, $clone->getSort('foo'));
-        $this->assertFalse($clone->hasSort('bar'));
-        $this->assertNull($clone->getSort('bar'));
+        $component->add(new Sort('foo'));
+        $this->assertCount(1, $component);
+        $this->assertTrue($component->has('foo'));
+        $this->assertInstanceOf(SortInterface::class, $component->get('foo'));
+        $this->assertFalse($component->has('bar'));
+        $this->assertNull($component->get('bar'));
     }
 
     public function testWithAddedSort()
     {
         $component = new SortComponent([new Sort('bar')]);
-        $clone = $component->withAddedSort(new Sort('foo'));
-        $this->assertNotSame($component, $clone);
-        $this->assertCount(2, $clone);
-        $this->assertTrue($clone->hasSort('foo'));
-        $this->assertTrue($clone->hasSort('bar'));
+        $component->add(new Sort('foo'));
+        $this->assertCount(2, $component);
+        $this->assertTrue($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
     }
 
     public function testWithoutSort()
     {
         $component = new SortComponent([new Sort('foo'), new Sort('bar')]);
-        $clone = $component->withoutSort(new Sort('foo'));
-        $this->assertNotSame($component, $clone);
-        $this->assertCount(1, $clone);
-        $this->assertFalse($clone->hasSort('foo'));
-        $this->assertTrue($clone->hasSort('bar'));
+        $component->remove(new Sort('foo'));
+        $this->assertCount(1, $component);
+        $this->assertFalse($component->has('foo'));
+        $this->assertTrue($component->has('bar'));
     }
 
-    public function testGetSorts()
+    public function testgets()
     {
         $sorts = [
             new Sort('foo'),
@@ -50,7 +47,7 @@ class SortComponentTest extends TestCase
         ];
 
         $component = new SortComponent($sorts);
-        $this->assertEquals(array_combine(['foo', 'bar'], $sorts), $component->getSorts());
+        $this->assertEquals(array_combine(['foo', 'bar'], $sorts), $component->all());
     }
 
 }

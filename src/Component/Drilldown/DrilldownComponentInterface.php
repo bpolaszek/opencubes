@@ -4,44 +4,39 @@ namespace BenTools\OpenCubes\Component\Drilldown;
 
 use BenTools\OpenCubes\Component\ComponentInterface;
 use Countable;
+use IteratorAggregate;
 
-interface DrilldownComponentInterface extends ComponentInterface, Countable
+interface DrilldownComponentInterface extends ComponentInterface, Countable, IteratorAggregate
 {
 
-    /**
-     * @param DimensionInterface[] ...$dimensions
-     * @return DrilldownComponentInterface
-     */
-    public function withDimension(DimensionInterface ...$dimensions): DrilldownComponentInterface;
+    public function clear(): void;
 
     /**
-     * @param DimensionInterface[] ...$dimensions
-     * @return DrilldownComponentInterface
+     * @param DimensionInterface $dimension
      */
-    public function withAddedDimension(DimensionInterface ...$dimensions): DrilldownComponentInterface;
+    public function add(DimensionInterface $dimension): void;
 
     /**
-     * @param DimensionInterface[] ...$dimensions
-     * @return DrilldownComponentInterface
+     * @param DimensionInterface $dimension
      */
-    public function withoutDimension(DimensionInterface ...$dimensions): DrilldownComponentInterface;
+    public function remove(DimensionInterface $dimension): void;
 
     /**
      * @return DimensionInterface[]
      */
-    public function getDimensions(): array;
+    public function all(): array;
 
     /**
      * @param string $field
      * @return DimensionInterface|null
      */
-    public function getDimension(string $field): ?DimensionInterface;
+    public function get(string $field): ?DimensionInterface;
 
     /**
      * @param string $field
      * @return bool
      */
-    public function hasDimension(string $field): bool;
+    public function has(string $field): bool;
 
     /**
      * Return the number of dimensions.
@@ -49,4 +44,9 @@ interface DrilldownComponentInterface extends ComponentInterface, Countable
      * @return int
      */
     public function count(): int;
+
+    /**
+     * @return DimensionInterface[]
+     */
+    public function getIterator();
 }
