@@ -2,6 +2,7 @@
 
 namespace BenTools\OpenCubes\Tests\GangnamStyle\Sort;
 
+use BenTools\OpenCubes\Component\Sort\Sort;
 use BenTools\OpenCubes\Component\Sort\SortComponent;
 use BenTools\OpenCubes\GangnamStyle\Sort\SortRequestParser;
 use GuzzleHttp\Psr7\Request;
@@ -20,8 +21,8 @@ class SortRequestParserTest extends TestCase
         $this->assertCount(2, $component);
         $this->assertTrue($component->has('foo'));
         $this->assertTrue($component->has('bar'));
-        $this->assertTrue($component->get('foo')->isAsc());
-        $this->assertTrue($component->get('bar')->isDesc());
+        $this->assertTrue($component->get('foo')->isApplied(Sort::SORT_ASC));
+        $this->assertTrue($component->get('bar')->isApplied(Sort::SORT_DESC));
     }
 
     public function testSupportsComponent()

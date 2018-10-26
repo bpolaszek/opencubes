@@ -9,5 +9,4 @@ interface ComponentInterface
      * @return string
      */
     public function getName(): string;
-
 }

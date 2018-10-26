@@ -10,24 +10,29 @@ final class Sort implements SortInterface
     private $field;
 
     /**
+     * @var array
+     */
+    private $availableDirections;
+
+    /**
      * @var int
      */
-    private $direction;
+    private $appliedDirection;
 
     /**
      * Sorting constructor.
      * @param string $field
-     * @param int    $direction
+     * @param array  $availableDirections
      */
-    public function __construct(string $field, int $direction = self::SORT_ASC)
+    public function __construct(string $field, array $availableDirections = [self::SORT_ASC, self::SORT_DESC])
     {
-
-        if (!in_array($direction, [self::SORT_ASC, self::SORT_DESC])) {
-            throw new \InvalidArgumentException(sprintf('Direction must be SORT_ASC or SORT_DESC constants.'));
+        foreach ($availableDirections as $availableDirection) {
+            if (!in_array($availableDirection, [self::SORT_ASC, self::SORT_DESC])) {
+                throw new \InvalidArgumentException('Invalid direction');
+            }
         }
-
         $this->field = $field;
-        $this->direction = $direction;
+        $this->availableDirections = $availableDirections;
     }
 
     /**
@@ -39,26 +44,32 @@ final class Sort implements SortInterface
     }
 
     /**
-     * @inheritDoc
+     * @return bool
      */
-    public function isAsc(): bool
+    public function isApplied(int $direction = null): bool
     {
-        return self::SORT_ASC === $this->direction;
+        if (null === $direction) {
+            return null !== $this->appliedDirection;
+        }
+        return $direction === $this->appliedDirection;
+    }
+
+    /**
+     * @param bool $applied
+     */
+    public function setAppliedDirection(?int $direction): void
+    {
+        if (!in_array($direction, [null, self::SORT_ASC, self::SORT_DESC])) {
+            throw new \InvalidArgumentException('Invalid direction');
+        }
+        $this->appliedDirection = $direction;
     }
 
     /**
      * @inheritDoc
      */
-    public function isDesc(): bool
+    public function getAvailableDirections(): array
     {
-        return self::SORT_DESC === $this->direction;
-    }
-
-    /**
-     * @return Sort
-     */
-    public function invert(): self
-    {
-        return new self($this->field, $this->isAsc() ? self::SORT_DESC : self::SORT_ASC);
+        return $this->availableDirections;
     }
 }

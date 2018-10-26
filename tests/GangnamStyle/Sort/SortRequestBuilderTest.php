@@ -16,8 +16,10 @@ class SortRequestBuilderTest extends TestCase
     {
         $component = new SortComponent([
             new Sort('foo'),
-            new Sort('bar', Sort::SORT_DESC),
+            new Sort('bar'),
         ]);
+
+        $component->get('bar')->setAppliedDirection(Sort::SORT_DESC);
 
         $request = new Request('GET', uri('http://localhost/?foo=bar'));
 

@@ -101,6 +101,6 @@ final class SortRequestBuilder implements RequestBuilderInterface
      */
     private function humanizeDirection(SortInterface $sort): string
     {
-        return $sort->isAsc() ? 'asc' : 'desc';
+        return $sort->isApplied(SortInterface::SORT_DESC) ? 'desc' : 'asc';
     }
 }

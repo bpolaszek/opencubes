@@ -14,12 +14,18 @@ interface SortInterface
     public function getField(): string;
 
     /**
-     * @return bool
+     * @return array
      */
-    public function isAsc(): bool;
+    public function getAvailableDirections(): array;
 
     /**
+     * @param int|null $direction
      * @return bool
      */
-    public function isDesc(): bool;
+    public function isApplied(int $direction = null): bool;
+
+    /**
+     * @param bool $applied
+     */
+    public function setAppliedDirection(?int $direction): void;
 }

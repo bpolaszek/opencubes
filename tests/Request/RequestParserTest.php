@@ -18,7 +18,9 @@ class RequestParserTest extends TestCase
 
     public function testGetComponents()
     {
-        $sortComponent = new SortComponent([new Sort('foo', Sort::SORT_DESC)]);
+        $fooSort = new Sort('foo');
+        $fooSort->setAppliedDirection(Sort::SORT_DESC);
+        $sortComponent = new SortComponent([$fooSort]);
         $uri = 'http://localhost/?foo=bar&f[status]=active&o[createdBy]=asc';
         $request = new Request('GET', $uri);
         $requestParser = new RequestParser([
@@ -39,9 +41,11 @@ class RequestParserTest extends TestCase
         $sorts = $components['sorting'];
         $this->assertTrue($sorts->has('createdBy'));
         $this->assertTrue($sorts->has('foo'));
+        $createdBySort = new Sort('createdBy');
+        $createdBySort->setAppliedDirection(Sort::SORT_ASC);
         $this->assertEquals([
-            'foo'       => new Sort('foo', Sort::SORT_DESC),
-            'createdBy' => new Sort('createdBy', Sort::SORT_ASC)
+            'foo'       => $fooSort,
+            'createdBy' => $createdBySort
         ], $sorts->all());
     }
 }
