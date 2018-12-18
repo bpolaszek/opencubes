@@ -3,6 +3,7 @@
 namespace BenTools\OpenCubes\GangnamStyle\Filter;
 
 use BenTools\OpenCubes\Component\ComponentInterface;
+use BenTools\OpenCubes\Component\Filter\CollectionFilterInterface;
 use BenTools\OpenCubes\Component\Filter\CompositeFilterInterface;
 use BenTools\OpenCubes\Component\Filter\FilterComponentInterface;
 use BenTools\OpenCubes\Component\Filter\FilterInterface;
@@ -35,7 +36,7 @@ final class FiltersRequestBuilder implements RequestBuilderInterface
      * @var QueryStringParserInterface
      */
     private $queryStringParser;
-    
+
     /**
      * @var QueryStringRendererInterface
      */
@@ -127,6 +128,10 @@ final class FiltersRequestBuilder implements RequestBuilderInterface
         if ($filter instanceof RangeFilterInterface) {
             return $this->getRangeFilterValueAsString($filter);
         }
+
+        if ($filter instanceof CollectionFilterInterface) {
+            return $this->getCollectionFilterValueAsArray($filter);
+        }
     }
 
     /**
@@ -156,6 +161,19 @@ final class FiltersRequestBuilder implements RequestBuilderInterface
         $values = [];
         foreach ($compositeFilter->getFilters() as $filter) {
             $values[] = $this->getFilterValue($filter);
+        }
+        return $values;
+    }
+
+    /**
+     * @param CompositeFilterInterface $compositeFilter
+     * @return array
+     */
+    private function getCollectionFilterValueAsArray(CollectionFilterInterface $collectionFilter)
+    {
+        $values = [];
+        foreach ($collectionFilter->getValues() as $value) {
+            $values[] = null === $value ? 'NULL' : $value;
         }
         return $values;
     }
