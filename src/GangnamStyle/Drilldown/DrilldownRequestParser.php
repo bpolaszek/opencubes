@@ -20,10 +20,12 @@ final class DrilldownRequestParser implements RequestParserInterface
      * @var string
      */
     private $qsParam;
+
     /**
      * @var QueryStringParserInterface
      */
     private $queryStringParser;
+
     /**
      * @var QueryStringRendererInterface
      */
@@ -57,11 +59,17 @@ final class DrilldownRequestParser implements RequestParserInterface
         $dimensions = $qs->getParam($this->qsParam) ?? [];
 
         if (!is_array($dimensions)) {
-            return $component;
+            $dimensions = (array) $dimensions;
         }
 
+        $dimensions = array_diff($dimensions, array_filter($dimensions, 'is_null'));
+
         foreach ($dimensions as $field) {
-            $component->add(new Dimension($field));
+            if ($component->has($field)) {
+                $component->get($field)->setApplied(true);
+            } else {
+                $component->add(new Dimension($field, true));
+            }
         }
 
         return $component;
