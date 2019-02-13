@@ -1,37 +1,18 @@
 <?php
 
-namespace BenTools\OpenCubes\GangnamStyle;
+namespace BenTools\OpenCubes;
 
-/**
- * @param array $array
- * @return bool
- */
-function is_indexed_array($array): bool
-{
-    if (is_array($array)) {
-        $keys = array_keys($array);
-        return count($keys) === count(array_filter($keys, 'is_int'));
-    }
-    return false;
-}
+use BenTools\UriFactory\UriFactory;
+use BenTools\UriFactory\UriFactoryInterface;
+use Psr\Http\Message\UriInterface;
+use function BenTools\QueryString\query_string;
+use function BenTools\QueryString\withoutNumericIndices;
+use function BenTools\UriFactory\Helper\uri;
 
 function is_sequential_array($array): bool
 {
     if (is_array($array)) {
         return array_keys($array) === range(0, count($array) - 1);
-    }
-    return false;
-}
-
-/**
- * @param $input
- * @return bool
- */
-function is_array_of_arrays($input): bool
-{
-    if (is_array($input)) {
-        $first = reset($input);
-        return is_array($first);
     }
     return false;
 }
@@ -48,4 +29,49 @@ function contains_only_scalars(iterable $iterable): bool
         }
     }
     return true;
+}
+
+/**
+ * @param UriFactoryInterface|null $factory
+ * @return UriInterface
+ * @throws \RuntimeException
+ */
+function current_location(UriFactoryInterface $factory = null): UriInterface
+{
+    if ('cli' === php_sapi_name()) {
+        return uri('/');
+    }
+
+    return UriFactory::factory()->createUriFromCurrentLocation($factory);
+}
+
+/**
+ * @param $value
+ * @return StringCaster
+ */
+function cast($value): StringCaster
+{
+    return new StringCaster($value);
+}
+
+/**
+ * @param UriInterface|null $uri
+ * @return string|null
+ */
+function stringify_uri(?UriInterface $uri): ?string
+{
+    if (null === $uri) {
+        return null;
+    }
+
+    $uri = $uri->withQuery(
+        (string) query_string($uri)->withRenderer(withoutNumericIndices())
+    );
+
+    return rawurldecode($uri);
+}
+
+function remove_null_values(array $array)
+{
+    return array_diff($array, array_filter($array, 'is_null'));
 }

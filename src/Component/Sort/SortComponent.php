@@ -2,47 +2,37 @@
 
 namespace BenTools\OpenCubes\Component\Sort;
 
-use ArrayIterator;
+use BenTools\OpenCubes\Component\ComponentInterface;
+use BenTools\OpenCubes\Component\Sort\Model\Sort;
 
-final class SortComponent implements SortComponentInterface
+final class SortComponent implements ComponentInterface, \IteratorAggregate, \Countable
 {
-
+    /**
+     * @var Sort[]
+     */
     private $sorts = [];
 
     /**
      * SortComponent constructor.
-     * @param SortInterface[] $sorts
+     * @param array $sorts
      */
-    public function __construct(array $sorts = [])
+    public function __construct(array $sorts)
     {
         foreach ($sorts as $sort) {
             $this->add($sort);
         }
     }
 
-    public function clear(): void
-    {
-        $this->sorts = [];
-    }
-
     /**
-     * @inheritDoc
+     * @param Sort $sort
      */
-    public function add(SortInterface $sort): void
+    public function add(Sort $sort): void
     {
-        $this->sorts[$sort->getField()] = $sort;
+        $this->sorts[] = $sort;
     }
 
     /**
-     * @inheritDoc
-     */
-    public function remove(SortInterface $sort): void
-    {
-        unset($this->sorts[$sort->getField()]);
-    }
-
-    /**
-     * @inheritDoc
+     * @return Sort[]
      */
     public function all(): array
     {
@@ -50,19 +40,26 @@ final class SortComponent implements SortComponentInterface
     }
 
     /**
-     * @inheritDoc
+     * @return Sort[]
      */
-    public function get(string $field): ?SortInterface
+    public function getAppliedSorts(): array
     {
-        return $this->sorts[$field] ?? null;
+        return array_values(
+            array_filter(
+                $this->sorts,
+                function (Sort $sort) {
+                    return $sort->isApplied();
+                }
+            )
+        );
     }
 
     /**
-     * @inheritDoc
+     * @return Sort[]
      */
-    public function has(string $field): bool
+    public function getIterator(): iterable
     {
-        return isset($this->sorts[$field]);
+        return new \ArrayIterator($this->sorts);
     }
 
     /**
@@ -76,16 +73,73 @@ final class SortComponent implements SortComponentInterface
     /**
      * @inheritDoc
      */
-    public function getIterator()
+    public static function getName(): string
     {
-        return new ArrayIterator($this->sorts);
+        return 'sort';
+    }
+
+    /**
+     * @param string      $field
+     * @param string|null $direction
+     * @return bool
+     */
+    public function isApplied(string $field, ?string $direction = null): bool
+    {
+        if (1 === func_num_args()) {
+            foreach ($this->sorts as $sort) {
+                if ($sort->getField() === $field && $sort->isApplied()) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        foreach ($this->sorts as $sort) {
+            if ($sort->getField() === $field && $sort->isApplied() && $sort->getDirection() === $direction) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @inheritDoc
      */
-    public function getName(): string
+    public function jsonSerialize(): array
     {
-        return 'sorting';
+        $output = [];
+
+        // Group by field
+        $fields = array_values(
+            array_unique(
+                array_map(
+                    function (Sort $sort): string {
+                        return $sort->getField();
+                    },
+                    $this->sorts
+                )
+            )
+        );
+
+        foreach ($fields as $field) {
+            $output[] = [
+                'field'      => $field,
+                'is_applied' => $this->isApplied($field),
+                'directions' => array_values(
+                    array_filter(
+                        $this->sorts,
+                        function (Sort $sort) use ($field): bool {
+                            return $sort->getField() === $field;
+                        }
+                    )
+                ),
+            ];
+        }
+
+        return [
+            'sorts' => $output,
+        ];
     }
 }

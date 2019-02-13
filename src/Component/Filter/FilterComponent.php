@@ -2,16 +2,20 @@
 
 namespace BenTools\OpenCubes\Component\Filter;
 
-use ArrayIterator;
+use BenTools\OpenCubes\Component\ComponentInterface;
+use BenTools\OpenCubes\Component\Filter\Model\Filter;
 
-final class FilterComponent implements FilterComponentInterface
+final class FilterComponent implements ComponentInterface, \IteratorAggregate, \Countable
 {
 
+    /**
+     * @var Filter[]
+     */
     private $filters = [];
 
     /**
      * FilterComponent constructor.
-     * @param array $filters
+     * @param Filter[] $filters
      */
     public function __construct(array $filters = [])
     {
@@ -23,29 +27,52 @@ final class FilterComponent implements FilterComponentInterface
     /**
      * @inheritDoc
      */
-    public function clear(): void
+    public static function getName(): string
     {
-        $this->filters = [];
+        return 'filters';
     }
 
     /**
-     * @inheritDoc
+     * @param Filter $filter
      */
-    public function add(FilterInterface $filter): void
+    public function add(Filter $filter): void
     {
         $this->filters[$filter->getField()] = $filter;
     }
 
     /**
-     * @inheritDoc
+     * @param string $field
+     * @return bool
      */
-    public function remove(FilterInterface $filter): void
+    public function has(string $field): bool
     {
-        unset($this->filters[$filter->getField()]);
+        foreach ($this->filters as $filter) {
+            if ($field === $filter->getField()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * @inheritDoc
+     * @param string $field
+     * @return Filter
+     * @throws \InvalidArgumentException
+     */
+    public function get(string $field): Filter
+    {
+        foreach ($this->filters as $filter) {
+            if ($field === $filter->getField()) {
+                return $filter;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('Unknown filter %s', $field));
+    }
+
+    /**
+     * @return Filter[]
      */
     public function all(): array
     {
@@ -53,25 +80,32 @@ final class FilterComponent implements FilterComponentInterface
     }
 
     /**
-     * @inheritDoc
+     * @return Filter[]
      */
-    public function get(string $field): ?FilterInterface
+    public function getAppliedFilters(): array
     {
-        return $this->filters[$field] ?? null;
+        return array_values(
+            array_filter(
+                $this->filters,
+                function (Filter $filter) {
+                    return $filter->isApplied();
+                }
+            )
+        );
+    }
+
+    /**
+     * @return Filter[]
+     */
+    public function getIterator(): iterable
+    {
+        return new \ArrayIterator($this->filters);
     }
 
     /**
      * @inheritDoc
      */
-    public function has(string $field): bool
-    {
-        return isset($this->filters[$field]);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
+    public function count()
     {
         return count($this->filters);
     }
@@ -79,16 +113,8 @@ final class FilterComponent implements FilterComponentInterface
     /**
      * @inheritDoc
      */
-    public function getIterator()
+    public function jsonSerialize(): array
     {
-        return new ArrayIterator($this->filters);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getName(): string
-    {
-        return 'filters';
+        return $this->all();
     }
 }
