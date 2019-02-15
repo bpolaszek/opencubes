@@ -68,10 +68,6 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     {
         if (is_array($value)) {
 
-            if ($this->hasSatisfiedByClause($value, $satisfiedBy)) {
-                return $this->createFilter($key, $value[$satisfiedBy], $baseUri, $applied, ['satisfied_by' => $satisfiedBy]);
-            }
-
             if (is_indexed_array($value) && contains_only_scalars($value)) {
                 $satisfiedBy = $options['satisfied_by'] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY);
                 return $this->createCollectionFilter($key, $value, $baseUri, $applied, $satisfiedBy);
@@ -85,7 +81,11 @@ final class FilterComponentFactory implements ComponentFactoryInterface
                     return $filter;
                 }
 
-                return $this->createCompositeFilter($key, array_merge([$filter], [$this->createFilter($key, $value, $baseUri, $applied)]), CompositeFilter::AND_OPERATOR, $baseUri, $applied);
+                return $this->createCompositeFilter($key, array_merge([$this->createFilter($key, $value, $baseUri, $applied)], [$filter]), CompositeFilter::AND_OPERATOR, $baseUri, $applied);
+            }
+
+            if ($this->hasSatisfiedByClause($value, $satisfiedBy)) {
+                return $this->createFilter($key, $value[$satisfiedBy], $baseUri, $applied, ['satisfied_by' => $satisfiedBy]);
             }
 
             if ($this->hasMatchOperator($value, $operator)) {
