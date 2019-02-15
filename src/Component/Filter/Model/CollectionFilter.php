@@ -16,7 +16,7 @@ final class CollectionFilter extends Filter implements \Countable
     private $field;
 
     /**
-     * @var array
+     * @var FilterValue[]
      */
     private $values;
 
@@ -27,8 +27,10 @@ final class CollectionFilter extends Filter implements \Countable
 
     /**
      * CollectionFilter constructor.
-     * @param string $field
-     * @param        $values
+     * @param string        $field
+     * @param Filtervalue[] $values
+     * @param string        $satisfiedBy
+     * @throws \InvalidArgumentException
      */
     public function __construct(string $field, array $values = [], string $satisfiedBy = self::ANY)
     {
@@ -36,7 +38,9 @@ final class CollectionFilter extends Filter implements \Countable
             throw new \InvalidArgumentException(sprintf('Invalid "satisfiedBy" condition for %s', $field));
         }
         $this->field = $field;
-        $this->values = array_values($values);
+        $this->values = (function (FilterValue ... $filterValues) {
+            return $filterValues;
+        })(...$values);
         $this->satisfiedBy = $satisfiedBy;
     }
 
@@ -44,6 +48,16 @@ final class CollectionFilter extends Filter implements \Countable
      * @inheritDoc
      */
     public function getValues(): array
+    {
+        return array_map(function (FilterValue $value) {
+            return $value->getValue();
+        }, $this->values);
+    }
+
+    /**
+     * @return FilterValue[]
+     */
+    public function getFilterValues()
     {
         return $this->values;
     }
@@ -55,25 +69,13 @@ final class CollectionFilter extends Filter implements \Countable
     public function withoutValue($value): self
     {
         $clone = clone $this;
-        foreach ($clone->values as $v => $_value) {
-            if ($_value === $value) {
+        foreach ($clone->values as $v => $filterValue) {
+            if ($filterValue->getValue() === $value) {
                 unset($clone->values[$v]);
             }
         }
 
         $clone->values = array_values($clone->values);
-
-        return $clone;
-    }
-
-    /**
-     * @param array $values
-     * @return CollectionFilter
-     */
-    public function withValues(array $values): self
-    {
-        $clone = clone $this;
-        $clone->values = array_values($values);
 
         return $clone;
     }
@@ -85,10 +87,10 @@ final class CollectionFilter extends Filter implements \Countable
     public function contains($value): bool
     {
         if (null === $value) {
-            return in_array(null, $this->values, true);
+            return in_array(null, $this->getValues(), true);
         }
 
-        return in_array((string) $value, $this->values, true);
+        return in_array((string) $value, $this->getValues(), true);
     }
 
     /**
@@ -134,7 +136,7 @@ final class CollectionFilter extends Filter implements \Countable
             'satisfied_by' => $this->getSatisfiedBy(),
             'is_applied'   => $this->isApplied(),
             'is_negated'   => $this->isNegated(),
-            'values'       => $this->getValues(),
+            'values'       => $this->getFilterValues(),
         ];
 
         if ($this->isApplied()) {

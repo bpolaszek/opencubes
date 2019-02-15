@@ -10,12 +10,18 @@ final class SimpleFilter extends Filter
      * @var string
      */
     private $field;
+
+    /**
+     * @var FilterValue|null
+     */
     private $value;
 
     /**
      * SimpleFilter constructor.
+     * @param string           $field
+     * @param FilterValue|null $value
      */
-    public function __construct(string $field, $value = null)
+    public function __construct(string $field, FilterValue $value = null)
     {
         $this->field = $field;
         $this->value = $value;
@@ -31,9 +37,17 @@ final class SimpleFilter extends Filter
     }
 
     /**
-     * @inheritDoc
+     * @return mixed
      */
     public function getValue()
+    {
+        return $this->value->getValue();
+    }
+
+    /**
+     * @return FilterValue|null
+     */
+    public function getFilterValue(): ?FilterValue
     {
         return $this->value;
     }
@@ -54,7 +68,7 @@ final class SimpleFilter extends Filter
         $output = [
             'type'       => $this->getType(),
             'field'      => $this->getField(),
-            'value'      => $this->getValue(),
+            'value'      => $this->getFilterValue(),
             'is_applied' => $this->isApplied(),
             'is_negated' => $this->isNegated(),
         ];
