@@ -7,6 +7,9 @@ use function BenTools\OpenCubes\stringify_uri;
 final class CollectionFilter extends Filter implements \Countable
 {
 
+    const ANY = 'ANY';
+    const ALL = 'ALL';
+
     /**
      * @var string
      */
@@ -18,14 +21,23 @@ final class CollectionFilter extends Filter implements \Countable
     private $values;
 
     /**
+     * @var string
+     */
+    private $satisfiedBy;
+
+    /**
      * CollectionFilter constructor.
      * @param string $field
      * @param        $values
      */
-    public function __construct(string $field, array $values = [])
+    public function __construct(string $field, array $values = [], string $satisfiedBy = self::ANY)
     {
+        if (!in_array($satisfiedBy, [self::ANY, self::ALL])) {
+            throw new \InvalidArgumentException(sprintf('Invalid "satisfiedBy" condition for %s', $field));
+        }
         $this->field = $field;
         $this->values = array_values($values);
+        $this->satisfiedBy = $satisfiedBy;
     }
 
     /**
@@ -88,6 +100,14 @@ final class CollectionFilter extends Filter implements \Countable
     }
 
     /**
+     * @return string
+     */
+    public function getSatisfiedBy(): string
+    {
+        return $this->satisfiedBy;
+    }
+
+    /**
      * @inheritDoc
      */
     public function count()
@@ -109,11 +129,12 @@ final class CollectionFilter extends Filter implements \Countable
     public function jsonSerialize(): array
     {
         $output = [
-            'type'       => $this->getType(),
-            'field'      => $this->getField(),
-            'is_applied' => $this->isApplied(),
-            'is_negated' => $this->isNegated(),
-            'values'     => $this->getValues(),
+            'type'         => $this->getType(),
+            'field'        => $this->getField(),
+            'satisfied_by' => $this->getSatisfiedBy(),
+            'is_applied'   => $this->isApplied(),
+            'is_negated'   => $this->isNegated(),
+            'values'       => $this->getValues(),
         ];
 
         if ($this->isApplied()) {

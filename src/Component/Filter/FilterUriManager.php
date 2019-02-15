@@ -20,6 +20,7 @@ final class FilterUriManager implements FilterUriManagerInterface
     use OptionsTrait;
 
     public const OPT_FILTER_QUERY_PARAM = 'query_param';
+    public const OPT_DEFAULT_SATISFIED_BY = 'default_satisfied_by';
 
     /**
      * @var PagerUriManager
@@ -40,7 +41,8 @@ final class FilterUriManager implements FilterUriManagerInterface
     {
         $optionsResolver = new OptionsResolver();
         $optionsResolver->setDefaults([
-            self::OPT_FILTER_QUERY_PARAM => 'filters'
+            self::OPT_FILTER_QUERY_PARAM => 'filters',
+            self::OPT_DEFAULT_SATISFIED_BY => CollectionFilter::ANY,
         ]);
 
         $this->options = $optionsResolver->resolve($options);
@@ -68,7 +70,11 @@ final class FilterUriManager implements FilterUriManagerInterface
 
         if ($filter instanceof CollectionFilter) {
             $values = func_num_args() > 2 ? array_merge($filter->getValues(), [$value]) : $filter->getValues();
-            $currentFilters[$filter->getField()] = $filter->isNegated() ? ['NOT' => $values] : $values;
+            $values = $filter->isNegated() ? ['NOT' => $values] : $values;
+            if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_SATISFIED_BY)) {
+                $values = [$filter->getSatisfiedBy() => $values];
+            }
+            $currentFilters[$filter->getField()] = $values;
         }
 
         if ($filter instanceof SimpleFilter) {

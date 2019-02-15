@@ -11,6 +11,7 @@ use BenTools\OpenCubes\Component\Filter\Model\FilterValue;
 use BenTools\OpenCubes\Component\Filter\Model\RangeFilter;
 use BenTools\OpenCubes\Component\Filter\Model\SimpleFilter;
 use BenTools\OpenCubes\Component\Filter\Model\StringMatchFilter;
+use function BenTools\OpenCubes\is_indexed_array;
 use Psr\Http\Message\UriInterface;
 use function BenTools\OpenCubes\contains_only_scalars;
 use function BenTools\OpenCubes\is_sequential_array;
@@ -55,16 +56,24 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     }
 
     /**
-     * @param string $key
-     * @param        $value
+     * @param string       $key
+     * @param              $value
+     * @param UriInterface $baseUri
+     * @param bool         $applied
+     * @param array        $options
      * @return Filter
      * @throws \InvalidArgumentException
      */
-    private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied): Filter
+    private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options = []): Filter
     {
         if (is_array($value)) {
-            if (is_sequential_array($value) && contains_only_scalars($value)) {
-                return $this->createCollectionFilter($key, $value, $baseUri, $applied);
+
+            if ($this->hasSatisfiedByClause($value, $satisfiedByClause)) {
+                return $this->createFilter($key, $value[$satisfiedByClause], $baseUri, $applied, ['satisfied_by' => $satisfiedByClause]);
+            }
+
+            if (is_indexed_array($value) && contains_only_scalars($value)) {
+                return $this->createCollectionFilter($key, $value, $baseUri, $applied, $options['satisfied_by'] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY));
             }
 
             if ($this->hasNegation($value)) {
@@ -137,9 +146,9 @@ final class FilterComponentFactory implements ComponentFactoryInterface
      * @param array  $values
      * @return CollectionFilter
      */
-    private function createCollectionFilter(string $key, array $values, UriInterface $baseUri, bool $applied): CollectionFilter
+    private function createCollectionFilter(string $key, array $values, UriInterface $baseUri, bool $applied, string $satisfiedBy): CollectionFilter
     {
-        $filter = new CollectionFilter($key, $values);
+        $filter = new CollectionFilter($key, array_values($values), $satisfiedBy);
         $filter->setApplied($applied);
         $filter->setToggleUri($applied ? $this->uriManager->buildRemoveFilterUrl($baseUri, $filter) : $this->uriManager->buildApplyFilterUrl($baseUri, $filter, $values));
         return $filter;
@@ -152,6 +161,20 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     private function hasNegation($value): bool
     {
         return is_array($value) && array_key_exists('NOT', $value);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function hasSatisfiedByClause($value, &$satisfiedClause): bool
+    {
+        if (is_array($value) && (array_key_exists(CollectionFilter::ALL, $value) || array_key_exists(CollectionFilter::ANY, $value))) {
+            $satisfiedClause = array_key_exists(CollectionFilter::ALL, $value) ? CollectionFilter::ALL : CollectionFilter::ANY;
+
+            return true;
+        }
+        return false;
     }
 
     /**
