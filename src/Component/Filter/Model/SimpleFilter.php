@@ -27,6 +27,15 @@ final class SimpleFilter extends Filter
         $this->value = $value;
     }
 
+    /**
+     * @param string $field
+     * @param        $value
+     * @return SimpleFilter
+     */
+    public static function createFromValue(string $field, $value): self
+    {
+        return new self($field, new FilterValue($value));
+    }
 
     /**
      * @inheritDoc

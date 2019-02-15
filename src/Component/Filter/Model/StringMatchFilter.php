@@ -22,22 +22,44 @@ final class StringMatchFilter extends Filter
      * @var string
      */
     private $field;
+
+    /**
+     * @var FilterValue
+     */
     private $value;
+
     /**
      * @var string
      */
     private $operator;
 
     /**
-     * SimpleFilter constructor.
+     * StringMatchFilter constructor.
+     * @param string           $field
+     * @param FilterValue|null $value
+     * @param string           $operator
      */
-    public function __construct(string $field, $value = null, string $operator)
+    public function __construct(string $field, FilterValue $value = null, string $operator = self::LIKE)
     {
         $this->field = $field;
         $this->value = $value;
         $this->operator = $operator;
     }
 
+    /**
+     * @param string $field
+     * @param string $value
+     * @param string $operator
+     * @return StringMatchFilter
+     */
+    public static function createFromValue(string $field, string $value, string $operator = self::LIKE)
+    {
+        return new self(
+            $field,
+            new FilterValue($value),
+            $operator
+        );
+    }
 
     /**
      * @inheritDoc
@@ -51,6 +73,14 @@ final class StringMatchFilter extends Filter
      * @inheritDoc
      */
     public function getValue()
+    {
+        return $this->value->getValue();
+    }
+
+    /**
+     * @return FilterValue|null
+     */
+    public function getFilterValue()
     {
         return $this->value;
     }
@@ -68,7 +98,7 @@ final class StringMatchFilter extends Filter
      */
     public function getType(): string
     {
-        return 'simple';
+        return 'string_match';
     }
 
     /**
@@ -80,7 +110,7 @@ final class StringMatchFilter extends Filter
             'type'       => $this->getType(),
             'field'      => $this->getField(),
             'operator'   => $this->getOperator(),
-            'value'      => $this->getValue(),
+            'value'      => $this->getFilterValue(),
             'is_applied' => $this->isApplied(),
             'is_negated' => $this->isNegated(),
         ];

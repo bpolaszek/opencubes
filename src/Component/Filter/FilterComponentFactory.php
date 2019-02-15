@@ -67,7 +67,6 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options = []): Filter
     {
         if (is_array($value)) {
-
             if (is_indexed_array($value) && contains_only_scalars($value)) {
                 $satisfiedBy = $options['satisfied_by'] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY);
                 return $this->createCollectionFilter($key, $value, $baseUri, $applied, $satisfiedBy);

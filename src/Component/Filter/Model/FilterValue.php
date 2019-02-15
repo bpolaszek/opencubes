@@ -35,10 +35,10 @@ final class FilterValue implements \JsonSerializable
     /**
      * FilterValue constructor.
      */
-    public function __construct(string $key, $value, bool $applied = true, ?int $count = null, ?UriInterface $toggleUri = null)
+    public function __construct(string $key, $value = null, bool $applied = true, ?int $count = null, ?UriInterface $toggleUri = null)
     {
         $this->key = $key;
-        $this->value = $value;
+        $this->value = $value ?? (func_num_args() === 1 ? $key : $value);
         $this->applied = $applied;
         $this->count = $count;
         $this->toggleUri = $toggleUri;

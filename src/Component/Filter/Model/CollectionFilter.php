@@ -45,6 +45,24 @@ final class CollectionFilter extends Filter implements \Countable
     }
 
     /**
+     * @param string $field
+     * @param array  $values
+     * @param string $satisfiedBy
+     * @return CollectionFilter
+     * @throws \InvalidArgumentException
+     */
+    public static function createFromValues(string $field, array $values, string $satisfiedBy = self::ANY)
+    {
+        return new self(
+            $field,
+            array_map(function ($value): FilterValue {
+                return new FilterValue($value);
+            }, $values),
+            $satisfiedBy
+        );
+    }
+
+    /**
      * @inheritDoc
      */
     public function getValues(): array
