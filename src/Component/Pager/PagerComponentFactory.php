@@ -91,16 +91,8 @@ final class PagerComponentFactory implements ComponentFactoryInterface
         $totalItems = $this->getOption(self::OPT_TOTAL_ITEMS, $options);
         $delta = $this->getOption(self::OPT_DELTA, $options);
 
-        if (!in_array($currentSize, $availableSizes)) {
-            $availableSizes[] = $currentSize;
-        }
-
-        sort($availableSizes, SORT_NUMERIC);
-
         // Create PageSize objects
-        $pageSizes = array_map(function (int $size) use ($uri, $currentSize) {
-            return new PageSize($size, $size === $currentSize, $this->uriManager->buildSizeUri($uri, $size === $currentSize ? null : $size));
-        }, $availableSizes);
+        $pageSizes = $this->createPageSizes($uri, $currentSize, $availableSizes);
         
         return new PagerComponent(
             $uri,
@@ -111,5 +103,25 @@ final class PagerComponentFactory implements ComponentFactoryInterface
             $pageSizes,
             $this->uriManager
         );
+    }
+
+    /**
+     * @param UriInterface $uri
+     * @param int|null     $currentSize
+     * @param array        $sizes
+     * @return PageSize[]
+     */
+    public function createPageSizes(UriInterface $uri, ?int $currentSize, array $sizes): array
+    {
+        if (!in_array($currentSize, $sizes)) {
+            $sizes[] = $currentSize;
+        }
+
+        sort($sizes, SORT_NUMERIC);
+
+        // Create PageSize objects
+        return array_map(function (int $size) use ($uri, $currentSize) {
+            return new PageSize($size, $size === $currentSize, $this->uriManager->buildSizeUri($uri, $size === $currentSize ? null : $size));
+        }, $sizes);
     }
 }

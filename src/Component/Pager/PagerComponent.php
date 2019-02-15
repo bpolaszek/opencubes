@@ -206,6 +206,10 @@ final class PagerComponent implements ComponentInterface, Countable
      */
     public function getCurrentOffset(): int
     {
+        if (!$this->isEnabled()) {
+            return 0;
+        }
+
         return ($this->getCurrentPage() - 1) * $this->getPerPage();
     }
 
