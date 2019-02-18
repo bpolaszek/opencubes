@@ -57,7 +57,7 @@ final class CompositeFilter extends Filter
     }
 
     /**
-     * @inheritDoc
+     * @return Filter[]
      */
     public function getFilters(): array
     {

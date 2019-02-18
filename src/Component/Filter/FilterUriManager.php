@@ -3,6 +3,7 @@
 namespace BenTools\OpenCubes\Component\Filter;
 
 use BenTools\OpenCubes\Component\Filter\Model\CollectionFilter;
+use BenTools\OpenCubes\Component\Filter\Model\CompositeFilter;
 use BenTools\OpenCubes\Component\Filter\Model\Filter;
 use BenTools\OpenCubes\Component\Filter\Model\RangeFilter;
 use BenTools\OpenCubes\Component\Filter\Model\SimpleFilter;
@@ -70,10 +71,10 @@ final class FilterUriManager implements FilterUriManagerInterface
 
         if ($filter instanceof CollectionFilter) {
             $values = func_num_args() > 2 ? array_merge($filter->getValues(), [$value]) : $filter->getValues();
-            $values = $filter->isNegated() ? ['NOT' => $values] : $values;
             if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_SATISFIED_BY)) {
                 $values = [$filter->getSatisfiedBy() => $values];
             }
+            $values = $filter->isNegated() ? ['NOT' => $values] : $values;
             $currentFilters[$filter->getField()] = $values;
         }
 
@@ -92,6 +93,15 @@ final class FilterUriManager implements FilterUriManagerInterface
             $value = func_num_args() > 2 ? $value : $filter->getValue();
             $normalizedvalue = [$filter->getOperator() => $value];
             $currentFilters[$filter->getField()] = $filter->isNegated() ? ['NOT' => $normalizedvalue] : $normalizedvalue;
+        }
+
+        if ($filter instanceof CompositeFilter) {
+            $compositeFilter = $currentFilters[$filter->getField()] ?? [];
+            foreach ($filter->getFilters() as $subFilter) {
+                $compositeFilter = array_merge_recursive($compositeFilter, query_string($this->buildApplyFilterUrl($uri, $subFilter))->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $subFilter->getField()) ?? []);
+            }
+
+            $currentFilters[$filter->getField()] = $compositeFilter;
         }
 
         $qs = $qs->withParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $currentFilters);
