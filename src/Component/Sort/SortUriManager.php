@@ -90,6 +90,7 @@ final class SortUriManager implements SortUriManagerInterface
         return array_map(function (string $direction) {
             switch ($direction) {
                 case '':
+                    return null;
                 case 'asc':
                 case 'ASC':
                     return 'asc';

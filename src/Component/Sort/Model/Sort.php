@@ -29,8 +29,12 @@ final class Sort implements \JsonSerializable
 
     /**
      * Sort constructor.
+     * @param string            $field
+     * @param string|null       $direction
+     * @param bool              $applied
+     * @param UriInterface|null $uri
      */
-    public function __construct(string $field, string $direction = 'asc', bool $applied = true, UriInterface $uri = null)
+    public function __construct(string $field, ?string $direction = 'asc', bool $applied = true, UriInterface $uri = null)
     {
         $this->field = $field;
         $this->direction = $direction;
@@ -49,7 +53,7 @@ final class Sort implements \JsonSerializable
     /**
      * @return string
      */
-    public function getDirection(): string
+    public function getDirection(): ?string
     {
         return $this->direction;
     }
