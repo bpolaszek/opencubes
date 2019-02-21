@@ -6,8 +6,15 @@ use function BenTools\OpenCubes\stringify_uri;
 
 final class CompositeFilter extends Filter
 {
-    const AND_OPERATOR = 'AND';
-    const OR_OPERATOR = 'OR';
+    /**
+     * @deprecated
+     */
+    public const AND_OPERATOR = 'AND';
+
+    /**
+     * @deprecated
+     */
+    public const OR_OPERATOR = 'OR';
 
     /**
      * @var string
@@ -22,16 +29,16 @@ final class CompositeFilter extends Filter
     /**
      * @var string
      */
-    private $operator;
+    private $satisfiedBy;
 
     /**
      * CompositeFilter constructor.
      * @param string $field
      * @param array  $filters
-     * @param string $operator
+     * @param string $satisfiedBy
      * @throws \InvalidArgumentException
      */
-    public function __construct(string $field, array $filters, string $operator = self::AND_OPERATOR)
+    public function __construct(string $field, array $filters, string $satisfiedBy = self::SATISFIED_BY_ALL)
     {
         $filters = (function (Filter ...$filters) use ($field) {
             foreach ($filters as $filter) {
@@ -42,10 +49,10 @@ final class CompositeFilter extends Filter
                 }
             }
             return $filters;
-        })(...$filters);
+        })(...array_values($filters));
         $this->field = $field;
         $this->filters = $filters;
-        $this->operator = $operator;
+        $this->satisfiedBy = $satisfiedBy;
     }
 
     /**
@@ -65,11 +72,20 @@ final class CompositeFilter extends Filter
     }
 
     /**
-     * @inheritDoc
+     * @return string
+     * @deprecated
      */
     public function getOperator(): string
     {
-        return $this->operator;
+        return self::SATISFIED_BY_ANY === $this->satisfiedBy ? 'OR' : 'AND';
+    }
+
+    /**
+     * @return string
+     */
+    public function getSatisfiedBy(): string
+    {
+        return $this->satisfiedBy;
     }
 
     /**
@@ -94,12 +110,13 @@ final class CompositeFilter extends Filter
     public function jsonSerialize(): array
     {
         $output = [
-            'type'       => $this->getType(),
-            'field'      => $this->getField(),
-            'operator'   => $this->getOperator(),
-            'is_applied' => $this->isApplied(),
-            'is_negated' => $this->isNegated(),
-            'filters'    => $this->getFilters(),
+            'type'         => $this->getType(),
+            'field'        => $this->getField(),
+            'operator'     => $this->getOperator(),
+            'satisfied_by' => $this->getSatisfiedBy(),
+            'is_applied'   => $this->isApplied(),
+            'is_negated'   => $this->isNegated(),
+            'filters'      => $this->getFilters(),
         ];
 
         if ($this->isApplied()) {

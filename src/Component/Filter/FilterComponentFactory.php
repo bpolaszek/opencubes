@@ -18,6 +18,7 @@ use function BenTools\OpenCubes\is_sequential_array;
 
 final class FilterComponentFactory implements ComponentFactoryInterface
 {
+    const OPT_SATISFIED_BY = 'satisfied_by';
     /**
      * @var FilterUriManagerInterface
      */
@@ -66,10 +67,17 @@ final class FilterComponentFactory implements ComponentFactoryInterface
      */
     private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options = []): Filter
     {
+        $options[self::OPT_SATISFIED_BY] = $options[self::OPT_SATISFIED_BY] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY);
+
         if (is_array($value)) {
             if (is_indexed_array($value) && contains_only_scalars($value)) {
-                $satisfiedBy = $options['satisfied_by'] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY);
-                return $this->createCollectionFilter($key, $value, $baseUri, $applied, $satisfiedBy);
+                if ($this->containsRangeFilter($value)) {
+                    return $this->createCompositeFilter($key, array_map(function ($value) use ($key, $baseUri, $applied, $options) {
+                        return $this->createFilter($key, $value, $baseUri, $applied, $options);
+                    }, $value), $baseUri, $applied, $options);
+                }
+
+                return $this->createCollectionFilter($key, $value, $baseUri, $applied, $options);
             }
 
             if ($this->hasNegation($value)) {
@@ -80,51 +88,55 @@ final class FilterComponentFactory implements ComponentFactoryInterface
                     return $filter;
                 }
 
-                return $this->createCompositeFilter($key, array_merge([$this->createFilter($key, $value, $baseUri, $applied)], [$filter]), CompositeFilter::AND_OPERATOR, $baseUri, $applied);
+                return $this->createCompositeFilter($key, array_merge([$this->createFilter($key, $value, $baseUri, $applied)], [$filter]), $baseUri, $applied, $options);
             }
 
             if ($this->hasSatisfiedByClause($value, $satisfiedBy)) {
-                return $this->createFilter($key, $value[$satisfiedBy], $baseUri, $applied, ['satisfied_by' => $satisfiedBy]);
+                return $this->createFilter($key, $value[$satisfiedBy], $baseUri, $applied, array_replace($options, [self::OPT_SATISFIED_BY => $satisfiedBy]));
             }
 
             if ($this->hasMatchOperator($value, $operator)) {
-                return $this->createStringMatchFilter($key, $value[$operator], $operator, $baseUri, $applied);
+                $value = $value[$operator];
+                return $this->createStringMatchFilter($key, $value, $operator, $baseUri, $applied, $options);
             }
 
             throw new \InvalidArgumentException("Unable to parse filters.");
         }
 
-        if (preg_match('/(^\[(.*) TO (.*)\]$)/', $value, $matches)) {
-            return $this->createRangeFilter($key, $matches[2], $matches[3], $baseUri, $applied);
+        if ($this->isRangeFilter($value, $matches)) {
+            return $this->createRangeFilter($key, $matches[2], $matches[3], $baseUri, $applied, $options);
         }
 
-        return $this->createSimpleFilter($key, $value, $baseUri, $applied);
+        return $this->createSimpleFilter($key, $value, $baseUri, $applied, $options);
     }
 
     /**
      * @param string       $key
      * @param array        $filters
-     * @param string       $operator
      * @param UriInterface $baseUri
      * @param bool         $applied
-     * @return CompositeFilter
+     * @param array        $options
+     * @return Filter
      * @throws \InvalidArgumentException
      */
-    private function createCompositeFilter(string $key, array $filters, string $operator, UriInterface $baseUri, bool $applied): CompositeFilter
+    private function createCompositeFilter(string $key, array $filters, UriInterface $baseUri, bool $applied, array $options): Filter
     {
-        $filter = new CompositeFilter($key, $filters, $operator);
+        $filter = new CompositeFilter($key, $filters, $options[self::OPT_SATISFIED_BY] ?? CompositeFilter::SATISFIED_BY_ALL);
         $filter->setApplied($applied);
         $filter->setToggleUri($applied ? $this->uriManager->buildRemoveFilterUrl($baseUri, $filter) : $this->uriManager->buildApplyFilterUrl($baseUri, $filter));
         return $filter;
     }
 
     /**
-     * @param string $key
-     * @param        $left
-     * @param        $right
-     * @return RangeFilter
+     * @param string       $key
+     * @param              $left
+     * @param              $right
+     * @param UriInterface $baseUri
+     * @param bool         $applied
+     * @param array        $options
+     * @return Filter
      */
-    private function createRangeFilter(string $key, $left, $right, UriInterface $baseUri, bool $applied): RangeFilter
+    private function createRangeFilter(string $key, $left, $right, UriInterface $baseUri, bool $applied, array $options): Filter
     {
         $left = '*' === $left ? null : $left;
         $right = '*' === $right ? null : $right;
@@ -135,11 +147,14 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     }
 
     /**
-     * @param string $key
-     * @param        $value
-     * @return SimpleFilter
+     * @param string       $key
+     * @param              $value
+     * @param UriInterface $baseUri
+     * @param bool         $applied
+     * @param array        $options
+     * @return Filter
      */
-    private function createSimpleFilter(string $key, $value, UriInterface $baseUri, bool $applied): SimpleFilter
+    private function createSimpleFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options): Filter
     {
         if ('NULL' === $value) {
             $value = null;
@@ -153,14 +168,22 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     }
 
     /**
-     * @param      $key
-     * @param      $value
-     * @param      $operator
-     * @param bool $applied
-     * @return StringMatchFilter
+     * @param              $key
+     * @param              $value
+     * @param              $operator
+     * @param UriInterface $baseUri
+     * @param bool         $applied
+     * @param array        $options
+     * @return Filter
+     * @throws \InvalidArgumentException
      */
-    private function createStringMatchFilter($key, $value, $operator, UriInterface $baseUri, bool $applied): StringMatchFilter
+    private function createStringMatchFilter($key, $value, $operator, UriInterface $baseUri, bool $applied, array $options): Filter
     {
+        if (is_array($value)) {
+            return $this->createCompositeFilter($key, array_map(function ($value) use ($key, $baseUri, $applied, $options) {
+                return $this->createFilter($key, $value, $baseUri, $applied);
+            }, $value), $baseUri, $applied, $options);
+        }
         $filterValue = new FilterValue($value, $value, $applied);
         $filter = new StringMatchFilter($key, $filterValue, $operator);
         $filter->setApplied($applied);
@@ -170,17 +193,21 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     }
 
     /**
-     * @param string $key
-     * @param array  $values
-     * @return CollectionFilter
+     * @param string       $key
+     * @param array        $values
+     * @param UriInterface $baseUri
+     * @param bool         $applied
+     * @param array        $options
+     * @return Filter
+     * @throws \InvalidArgumentException
      */
-    private function createCollectionFilter(string $key, array $values, UriInterface $baseUri, bool $applied, string $satisfiedBy): CollectionFilter
+    private function createCollectionFilter(string $key, array $values, UriInterface $baseUri, bool $applied, array $options): Filter
     {
         $values = array_values($values);
         $filterValues = array_map(function ($value) {
             return new FilterValue($value, $value, true);
         }, $values);
-        $filter = new CollectionFilter($key, $filterValues, $satisfiedBy);
+        $filter = new CollectionFilter($key, $filterValues, $options[self::OPT_SATISFIED_BY] ?? CollectionFilter::SATISFIED_BY_ANY);
         $filter->setApplied($applied);
         $filter->setToggleUri($applied ? $this->uriManager->buildRemoveFilterUrl($baseUri, $filter) : $this->uriManager->buildApplyFilterUrl($baseUri, $filter, $values));
         return $filter;
@@ -201,8 +228,8 @@ final class FilterComponentFactory implements ComponentFactoryInterface
      */
     private function hasSatisfiedByClause($value, &$satisfiedClause = null): bool
     {
-        if (is_array($value) && (array_key_exists(CollectionFilter::ALL, $value) || array_key_exists(CollectionFilter::ANY, $value))) {
-            $satisfiedClause = array_key_exists(CollectionFilter::ALL, $value) ? CollectionFilter::ALL : CollectionFilter::ANY;
+        if (is_array($value) && (array_key_exists(CollectionFilter::SATISFIED_BY_ALL, $value) || array_key_exists(CollectionFilter::SATISFIED_BY_ANY, $value))) {
+            $satisfiedClause = array_key_exists(CollectionFilter::SATISFIED_BY_ALL, $value) ? CollectionFilter::SATISFIED_BY_ALL : CollectionFilter::SATISFIED_BY_ANY;
 
             return true;
         }
@@ -222,6 +249,31 @@ final class FilterComponentFactory implements ComponentFactoryInterface
                     $operator = $key;
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param      $value
+     * @param null $matches
+     * @return bool
+     */
+    private function isRangeFilter($value, &$matches = null): bool
+    {
+        return preg_match('/(^\[(.*) TO (.*)\]$)/', $value, $matches);
+    }
+
+    /**
+     * @param array $values
+     * @return bool
+     */
+    private function containsRangeFilter(array $values): bool
+    {
+        foreach ($values as $value) {
+            if ($this->isRangeFilter($value)) {
+                return true;
             }
         }
 

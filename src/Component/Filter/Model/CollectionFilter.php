@@ -7,9 +7,6 @@ use function BenTools\OpenCubes\stringify_uri;
 final class CollectionFilter extends Filter implements \Countable
 {
 
-    const ANY = 'ANY';
-    const ALL = 'ALL';
-
     /**
      * @var string
      */
@@ -32,9 +29,9 @@ final class CollectionFilter extends Filter implements \Countable
      * @param string        $satisfiedBy
      * @throws \InvalidArgumentException
      */
-    public function __construct(string $field, array $values = [], string $satisfiedBy = self::ANY)
+    public function __construct(string $field, array $values = [], string $satisfiedBy = self::SATISFIED_BY_ANY)
     {
-        if (!in_array($satisfiedBy, [self::ANY, self::ALL])) {
+        if (!in_array($satisfiedBy, [self::SATISFIED_BY_ANY, self::SATISFIED_BY_ALL])) {
             throw new \InvalidArgumentException(sprintf('Invalid "satisfiedBy" condition for %s', $field));
         }
         $this->field = $field;
@@ -51,7 +48,7 @@ final class CollectionFilter extends Filter implements \Countable
      * @return CollectionFilter
      * @throws \InvalidArgumentException
      */
-    public static function createFromValues(string $field, array $values, string $satisfiedBy = self::ANY)
+    public static function createFromValues(string $field, array $values, string $satisfiedBy = self::SATISFIED_BY_ANY)
     {
         return new self(
             $field,

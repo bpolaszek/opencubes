@@ -12,6 +12,7 @@
     "symfony/options-resolver": "~3.0|~4.0"
   },
   "require-dev": {
+    "filp/whoops": "^2.3",
     "guzzlehttp/psr7": "^1.4",
     "phpunit/phpunit": "^7.1",
     "symfony/var-dumper": "^4.0"

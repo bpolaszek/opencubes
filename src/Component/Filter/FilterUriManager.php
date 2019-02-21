@@ -44,7 +44,7 @@ final class FilterUriManager implements FilterUriManagerInterface
         $optionsResolver = new OptionsResolver();
         $optionsResolver->setDefaults([
             self::OPT_FILTER_QUERY_PARAM => 'filters',
-            self::OPT_DEFAULT_SATISFIED_BY => CollectionFilter::ANY,
+            self::OPT_DEFAULT_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ANY,
         ]);
 
         $this->options = $optionsResolver->resolve($options);

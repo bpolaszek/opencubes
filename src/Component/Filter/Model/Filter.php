@@ -6,6 +6,9 @@ use Psr\Http\Message\UriInterface;
 
 abstract class Filter implements \JsonSerializable
 {
+    public const SATISFIED_BY_ANY = 'ANY';
+    public const SATISFIED_BY_ALL = 'ALL';
+
     /**
      * @var bool
      */
