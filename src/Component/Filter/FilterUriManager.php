@@ -12,6 +12,7 @@ use BenTools\OpenCubes\Component\Pager\PagerUriManager;
 use BenTools\OpenCubes\Component\Pager\PagerUriManagerInterface;
 use BenTools\OpenCubes\OptionsTrait;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\OptionsResolver\Exception\NoSuchOptionException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use function BenTools\QueryString\query_string;
 use function BenTools\QueryString\withoutNumericIndices;
@@ -98,7 +99,7 @@ final class FilterUriManager implements FilterUriManagerInterface
         if ($filter instanceof CompositeFilter) {
             $compositeFilter = $currentFilters[$filter->getField()] ?? [];
             foreach ($filter->getFilters() as $subFilter) {
-                $compositeFilter = array_merge_recursive($compositeFilter, query_string($this->buildApplyFilterUrl($uri, $subFilter))->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $subFilter->getField()) ?? []);
+                $compositeFilter = array_merge_recursive($compositeFilter, (array) (query_string($this->buildApplyFilterUrl($uri, $subFilter))->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $subFilter->getField()) ?? []));
             }
 
             $currentFilters[$filter->getField()] = $compositeFilter;
