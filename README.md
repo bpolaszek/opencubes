@@ -29,6 +29,7 @@ $filters = $openCubes->getComponent(FilterComponent::getName());
 // Pagination
 echo $pager->getCurrentPage(); // 3
 echo $pager->getCurrentOffset(); // 100
+echo count($pager); // 4
 
 // Sorting
 foreach ($sorting->getAppliedSorts() as $sort) {
