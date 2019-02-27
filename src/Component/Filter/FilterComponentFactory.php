@@ -50,7 +50,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
         $filters = [];
 
         foreach ($rawFilters as $field => $value) {
-            $filters[] = $this->createFilter($field, $value, $uri, true);
+            $filters[] = $this->createFilter($field, $value, $uri, true, []);
         }
 
         return new FilterComponent($filters);
@@ -65,7 +65,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
      * @return Filter
      * @throws \InvalidArgumentException
      */
-    private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options = []): Filter
+    private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options): Filter
     {
         $options[self::OPT_SATISFIED_BY] = $options[self::OPT_SATISFIED_BY] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY);
 
@@ -83,12 +83,18 @@ final class FilterComponentFactory implements ComponentFactoryInterface
             if ($this->hasNegation($value)) {
                 $negated = $value['NOT'];
                 unset($value['NOT']);
-                $filter = $this->createFilter($key, $negated, $baseUri, $applied)->negate();
+
+                if ($this->hasSatisfiedByClause($negated, $satisfiedBy)) {
+                    $negated = $negated[$satisfiedBy];
+                    $options = array_replace($options, [self::OPT_SATISFIED_BY => $satisfiedBy]);
+                }
+
+                $filter = $this->createFilter($key, $negated, $baseUri, $applied, $options)->negate();
                 if (0 === count($value)) {
                     return $filter;
                 }
 
-                return $this->createCompositeFilter($key, array_merge([$this->createFilter($key, $value, $baseUri, $applied)], [$filter]), $baseUri, $applied, $options);
+                return $this->createCompositeFilter($key, array_merge([$this->createFilter($key, $value, $baseUri, $applied, $options)], [$filter]), $baseUri, $applied, $options);
             }
 
             if ($this->hasSatisfiedByClause($value, $satisfiedBy)) {
