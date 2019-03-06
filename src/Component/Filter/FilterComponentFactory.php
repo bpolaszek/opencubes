@@ -18,6 +18,7 @@ use function BenTools\OpenCubes\is_indexed_array;
 final class FilterComponentFactory implements ComponentFactoryInterface
 {
     const OPT_SATISFIED_BY = 'satisfied_by';
+
     /**
      * @var FilterUriManagerInterface
      */

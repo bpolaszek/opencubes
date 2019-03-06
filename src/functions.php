@@ -177,7 +177,25 @@ function stringify_uri(?UriInterface $uri): ?string
     return rawurldecode((string) $uri);
 }
 
+/**
+ * @param array $array
+ * @return array
+ */
 function remove_null_values(array $array)
 {
     return array_diff($array, array_filter($array, 'is_null'));
+}
+
+/**
+ * @param iterable $items
+ * @return mixed
+ * @throws \InvalidArgumentException
+ */
+function first_of(iterable $items)
+{
+    foreach ($items as $item) {
+        return $item;
+    }
+
+    throw new \InvalidArgumentException('Expected at least 1 item');
 }

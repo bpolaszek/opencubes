@@ -71,7 +71,7 @@ final class FilterUriManager implements FilterUriManagerInterface
         $currentFilters = $qs->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM)) ?? [];
 
         if ($filter instanceof CollectionFilter) {
-            $values = func_num_args() > 2 ? array_merge($filter->getValues(), [$value]) : $filter->getValues();
+            $values = func_num_args() > 2 ? (array) $value : $filter->getValues();
             if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_SATISFIED_BY)) {
                 $values = [$filter->getSatisfiedBy() => $values];
             }
@@ -97,12 +97,19 @@ final class FilterUriManager implements FilterUriManagerInterface
         }
 
         if ($filter instanceof CompositeFilter) {
-            $compositeFilter = $currentFilters[$filter->getField()] ?? [];
+            $parts = [$currentFilters[$filter->getField()] ?? []];
             foreach ($filter->getFilters() as $subFilter) {
-                $compositeFilter = array_merge_recursive($compositeFilter, (array) (query_string($this->buildApplyFilterUrl($uri, $subFilter))->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $subFilter->getField()) ?? []));
+                $subFilterValue = (array) (query_string($this->buildApplyFilterUrl($uri, $subFilter))->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $subFilter->getField()) ?? []);
+                if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_SATISFIED_BY)) {
+                    $subFilterValue = [$filter->getSatisfiedBy() => $subFilterValue];
+                }
+                if ($filter->isNegated()) {
+                    $subFilterValue = ['NOT' => $subFilterValue];
+                }
+                $parts[] = $subFilterValue;
             }
 
-            $currentFilters[$filter->getField()] = $compositeFilter;
+            $currentFilters[$filter->getField()] = array_merge_recursive(...$parts);
         }
 
         $qs = $qs->withParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $currentFilters);
