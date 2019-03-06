@@ -2,7 +2,6 @@
 
 namespace BenTools\OpenCubes\Tests\Component\Pager;
 
-use BenTools\OpenCubes\Component\Pager\Model\PageSize;
 use BenTools\OpenCubes\Component\Pager\PagerComponent;
 use BenTools\OpenCubes\Component\Pager\PagerComponentFactory;
 use PHPUnit\Framework\TestCase;
@@ -287,7 +286,7 @@ class PagerComponentTest extends TestCase
         $component = $factory->createComponent($uri);
         $json = json_decode(json_encode($component), true);
         $expected = [
-            'enabled'    => true,
+            'is_enabled'    => true,
             'per_page'   => 50,
             'nb_items'   => 160,
             'count'      => 4,
