@@ -7,16 +7,6 @@ use function BenTools\OpenCubes\stringify_uri;
 final class CompositeFilter extends Filter
 {
     /**
-     * @deprecated
-     */
-    public const AND_OPERATOR = 'AND';
-
-    /**
-     * @deprecated
-     */
-    public const OR_OPERATOR = 'OR';
-
-    /**
      * @var string
      */
     private $field;
@@ -73,15 +63,6 @@ final class CompositeFilter extends Filter
 
     /**
      * @return string
-     * @deprecated
-     */
-    public function getOperator(): string
-    {
-        return self::SATISFIED_BY_ANY === $this->satisfiedBy ? 'OR' : 'AND';
-    }
-
-    /**
-     * @return string
      */
     public function getSatisfiedBy(): string
     {
@@ -112,7 +93,6 @@ final class CompositeFilter extends Filter
         $output = [
             'type'         => $this->getType(),
             'field'        => $this->getField(),
-            'operator'     => $this->getOperator(),
             'satisfied_by' => $this->getSatisfiedBy(),
             'is_applied'   => $this->isApplied(),
             'is_negated'   => $this->isNegated(),

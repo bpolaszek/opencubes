@@ -6,9 +6,10 @@ use BenTools\OpenCubes\Component\ComponentInterface;
 use BenTools\OpenCubes\Component\Pager\Model\Page;
 use BenTools\OpenCubes\Component\Pager\Model\PageSize;
 use Countable;
+use JsonSerializable;
 use Psr\Http\Message\UriInterface;
 
-final class PagerComponent implements ComponentInterface, Countable
+final class PagerComponent implements ComponentInterface, Countable, JsonSerializable
 {
     /**
      * @var UriInterface
@@ -356,7 +357,7 @@ final class PagerComponent implements ComponentInterface, Countable
     public function jsonSerialize(): array
     {
         return [
-            'enabled'    => $this->isEnabled(),
+            'is_enabled' => $this->isEnabled(),
             'per_page'   => $this->getPerPage(),
             'nb_items'   => $this->getNbItems(),
             'count'      => $this->count(),
@@ -367,7 +368,6 @@ final class PagerComponent implements ComponentInterface, Countable
             'last'       => $this->createPage($this->getLastPage()),
             'pages'      => $this->getPages(),
             'page_sizes' => $this->getPageSizes(),
-
         ];
     }
 }

@@ -4,8 +4,11 @@ namespace BenTools\OpenCubes\Component\BreakDown;
 
 use BenTools\OpenCubes\Component\BreakDown\Model\Group;
 use BenTools\OpenCubes\Component\ComponentInterface;
+use Countable;
+use IteratorAggregate;
+use JsonSerializable;
 
-final class BreakDownComponent implements ComponentInterface, \IteratorAggregate, \Countable
+final class BreakDownComponent implements ComponentInterface, IteratorAggregate, Countable, JsonSerializable
 {
     /**
      * @var Group[]

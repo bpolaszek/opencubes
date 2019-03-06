@@ -4,8 +4,11 @@ namespace BenTools\OpenCubes\Component\Filter;
 
 use BenTools\OpenCubes\Component\ComponentInterface;
 use BenTools\OpenCubes\Component\Filter\Model\Filter;
+use Countable;
+use IteratorAggregate;
+use JsonSerializable;
 
-final class FilterComponent implements ComponentInterface, \IteratorAggregate, \Countable
+final class FilterComponent implements ComponentInterface, IteratorAggregate, Countable, JsonSerializable
 {
 
     /**

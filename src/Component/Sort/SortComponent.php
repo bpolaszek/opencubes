@@ -4,8 +4,11 @@ namespace BenTools\OpenCubes\Component\Sort;
 
 use BenTools\OpenCubes\Component\ComponentInterface;
 use BenTools\OpenCubes\Component\Sort\Model\Sort;
+use Countable;
+use IteratorAggregate;
+use JsonSerializable;
 
-final class SortComponent implements ComponentInterface, \IteratorAggregate, \Countable
+final class SortComponent implements ComponentInterface, IteratorAggregate, Countable, JsonSerializable
 {
     /**
      * @var Sort[]

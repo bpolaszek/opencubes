@@ -2,7 +2,7 @@
 
 namespace BenTools\OpenCubes\Component;
 
-interface ComponentInterface extends \JsonSerializable
+interface ComponentInterface
 {
 
     /**
@@ -11,11 +11,4 @@ interface ComponentInterface extends \JsonSerializable
      * @return string
      */
     public static function getName(): string;
-
-    /**
-     * The component JSON representation.
-     *
-     * @return array
-     */
-    public function jsonSerialize(): array;
 }
