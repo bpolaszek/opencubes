@@ -22,7 +22,8 @@ final class FilterUriManager implements FilterUriManagerInterface
     use OptionsTrait;
 
     public const OPT_FILTER_QUERY_PARAM = 'query_param';
-    public const OPT_DEFAULT_SATISFIED_BY = 'default_satisfied_by';
+    public const OPT_DEFAULT_COLLECTION_SATISFIED_BY = 'default_collection_satisfied_by';
+    public const OPT_DEFAULT_COMPOSITE_SATISFIED_BY = 'default_composite_satisfied_by';
 
     /**
      * @var PagerUriManager
@@ -43,8 +44,9 @@ final class FilterUriManager implements FilterUriManagerInterface
     {
         $optionsResolver = new OptionsResolver();
         $optionsResolver->setDefaults([
-            self::OPT_FILTER_QUERY_PARAM => 'filters',
-            self::OPT_DEFAULT_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ANY,
+            self::OPT_FILTER_QUERY_PARAM              => 'filters',
+            self::OPT_DEFAULT_COLLECTION_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ANY,
+            self::OPT_DEFAULT_COMPOSITE_SATISFIED_BY  => CompositeFilter::SATISFIED_BY_ALL,
         ]);
 
         $this->options = $optionsResolver->resolve($options);
@@ -72,7 +74,7 @@ final class FilterUriManager implements FilterUriManagerInterface
 
         if ($filter instanceof CollectionFilter) {
             $values = func_num_args() > 2 ? (array) $value : $filter->getValues();
-            if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_SATISFIED_BY)) {
+            if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_COLLECTION_SATISFIED_BY)) {
                 $values = [$filter->getSatisfiedBy() => $values];
             }
             $values = $filter->isNegated() ? ['NOT' => $values] : $values;
@@ -100,9 +102,7 @@ final class FilterUriManager implements FilterUriManagerInterface
             $parts = [$currentFilters[$filter->getField()] ?? []];
             foreach ($filter->getFilters() as $subFilter) {
                 $subFilterValue = (array) (query_string($this->buildApplyFilterUrl($uri, $subFilter))->getParam($this->getOption(self::OPT_FILTER_QUERY_PARAM), $subFilter->getField()) ?? []);
-                if ($filter->getSatisfiedBy() !== $this->getOption(self::OPT_DEFAULT_SATISFIED_BY)) {
-                    $subFilterValue = [$filter->getSatisfiedBy() => $subFilterValue];
-                }
+                $subFilterValue = [$filter->getSatisfiedBy() => $subFilterValue];
                 if ($filter->isNegated()) {
                     $subFilterValue = ['NOT' => $subFilterValue];
                 }

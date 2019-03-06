@@ -84,7 +84,7 @@ class FilterUriManagerTest extends TestCase
         $this->assertEquals('https://example.org/?f[ids][ALL][]=1&f[ids][ALL][]=2', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter)));
         $this->assertEquals('https://example.org/?f[ids][ALL][]=3&f[ids][ALL][]=4', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter, [3, 4])));
 
-        $uriManager = new FilterUriManager([FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f', FilterUriManager::OPT_DEFAULT_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ALL]);
+        $uriManager = new FilterUriManager([FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f', FilterUriManager::OPT_DEFAULT_COLLECTION_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ALL]);
         $filter = CollectionFilter::createFromValues('ids', [1, 2], CollectionFilter::SATISFIED_BY_ALL);
         $this->assertEquals('https://example.org/?f[ids][]=1&f[ids][]=2', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter)));
         $this->assertEquals('https://example.org/?f[ids][]=3&f[ids][]=4', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter, [3, 4])));
@@ -111,7 +111,7 @@ class FilterUriManagerTest extends TestCase
         $this->assertEquals('https://example.org/?f[ids][NOT][ALL][]=1&f[ids][NOT][ALL][]=2', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter)));
         $this->assertEquals('https://example.org/?f[ids][NOT][ALL][]=3&f[ids][NOT][ALL][]=4', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter, [3, 4])));
 
-        $uriManager = new FilterUriManager([FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f', FilterUriManager::OPT_DEFAULT_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ALL]);
+        $uriManager = new FilterUriManager([FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f', FilterUriManager::OPT_DEFAULT_COLLECTION_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ALL]);
         $filter = CollectionFilter::createFromValues('ids', [1, 2], CollectionFilter::SATISFIED_BY_ALL);
         $filter = $filter->negate();
         $this->assertEquals('https://example.org/?f[ids][NOT][]=1&f[ids][NOT][]=2', stringify_uri($uriManager->buildApplyFilterUrl($uri, $filter)));

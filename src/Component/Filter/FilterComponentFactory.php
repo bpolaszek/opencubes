@@ -17,7 +17,8 @@ use function BenTools\OpenCubes\is_indexed_array;
 
 final class FilterComponentFactory implements ComponentFactoryInterface
 {
-    const OPT_SATISFIED_BY = 'satisfied_by';
+    private const OPT_COLLECTION_SATISFIED_BY = 'collection_satisfied_by';
+    private const OPT_COMPOSITE_SATISFIED_BY = 'composite_satisfied_by';
 
     /**
      * @var FilterUriManagerInterface
@@ -67,7 +68,8 @@ final class FilterComponentFactory implements ComponentFactoryInterface
      */
     private function createFilter(string $key, $value, UriInterface $baseUri, bool $applied, array $options): Filter
     {
-        $options[self::OPT_SATISFIED_BY] = $options[self::OPT_SATISFIED_BY] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_SATISFIED_BY);
+        $options[self::OPT_COLLECTION_SATISFIED_BY] = $options[self::OPT_COLLECTION_SATISFIED_BY] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_COLLECTION_SATISFIED_BY);
+        $options[self::OPT_COMPOSITE_SATISFIED_BY] = $options[self::OPT_COMPOSITE_SATISFIED_BY] ?? $this->uriManager->getOption(FilterUriManager::OPT_DEFAULT_COMPOSITE_SATISFIED_BY);
 
         if (is_array($value)) {
             if (is_indexed_array($value) && contains_only_scalars($value)) {
@@ -86,7 +88,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
 
                 if ($this->hasSatisfiedByClause($negated, $satisfiedBy)) {
                     $negated = $negated[$satisfiedBy];
-                    $options = array_replace($options, [self::OPT_SATISFIED_BY => $satisfiedBy]);
+                    $options = array_replace($options, [self::OPT_COLLECTION_SATISFIED_BY => $satisfiedBy]);
                 }
 
                 $filter = $this->createFilter($key, $negated, $baseUri, $applied, $options)->negate();
@@ -98,7 +100,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
             }
 
             if ($this->hasSatisfiedByClause($value, $satisfiedBy)) {
-                return $this->createFilter($key, $value[$satisfiedBy], $baseUri, $applied, array_replace($options, [self::OPT_SATISFIED_BY => $satisfiedBy]));
+                return $this->createFilter($key, $value[$satisfiedBy], $baseUri, $applied, array_replace($options, [self::OPT_COLLECTION_SATISFIED_BY => $satisfiedBy]));
             }
 
             if ($this->hasMatchOperator($value, $operator)) {
@@ -127,7 +129,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
      */
     private function createCompositeFilter(string $key, array $filters, UriInterface $baseUri, bool $applied, array $options): Filter
     {
-        $filter = new CompositeFilter($key, $filters, $options[self::OPT_SATISFIED_BY] ?? CompositeFilter::SATISFIED_BY_ALL);
+        $filter = new CompositeFilter($key, $filters, $options[self::OPT_COMPOSITE_SATISFIED_BY] ?? CompositeFilter::SATISFIED_BY_ALL);
         $filter->setApplied($applied);
         $filter->setToggleUri($applied ? $this->uriManager->buildRemoveFilterUrl($baseUri, $filter) : $this->uriManager->buildApplyFilterUrl($baseUri, $filter));
         return $filter;
@@ -213,7 +215,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
         $filterValues = array_map(function ($value) {
             return new FilterValue($value, $value, true);
         }, $values);
-        $filter = new CollectionFilter($key, $filterValues, $options[self::OPT_SATISFIED_BY] ?? CollectionFilter::SATISFIED_BY_ANY);
+        $filter = new CollectionFilter($key, $filterValues, $options[self::OPT_COLLECTION_SATISFIED_BY] ?? CollectionFilter::SATISFIED_BY_ANY);
         $filter->setApplied($applied);
         $filter->setToggleUri($applied ? $this->uriManager->buildRemoveFilterUrl($baseUri, $filter) : $this->uriManager->buildApplyFilterUrl($baseUri, $filter, $values));
         return $filter;
