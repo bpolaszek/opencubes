@@ -11,10 +11,9 @@ use BenTools\OpenCubes\Component\Filter\Model\FilterValue;
 use BenTools\OpenCubes\Component\Filter\Model\RangeFilter;
 use BenTools\OpenCubes\Component\Filter\Model\SimpleFilter;
 use BenTools\OpenCubes\Component\Filter\Model\StringMatchFilter;
-use function BenTools\OpenCubes\is_indexed_array;
 use Psr\Http\Message\UriInterface;
 use function BenTools\OpenCubes\contains_only_scalars;
-use function BenTools\OpenCubes\is_sequential_array;
+use function BenTools\OpenCubes\is_indexed_array;
 
 final class FilterComponentFactory implements ComponentFactoryInterface
 {
@@ -187,7 +186,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
     {
         if (is_array($value)) {
             return $this->createCompositeFilter($key, array_map(function ($value) use ($key, $baseUri, $applied, $options) {
-                return $this->createFilter($key, $value, $baseUri, $applied);
+                return $this->createFilter($key, $value, $baseUri, $applied, $options);
             }, $value), $baseUri, $applied, $options);
         }
         $filterValue = new FilterValue($value, $value, $applied);
