@@ -21,7 +21,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_simple_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -46,7 +46,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_negated_simple_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -71,7 +71,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_collection_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -97,7 +97,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_negated_collection_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM              => 'f',
             FilterUriManager::OPT_DEFAULT_COLLECTION_SATISFIED_BY => CollectionFilter::SATISFIED_BY_ALL,
         ]));
@@ -124,7 +124,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_range_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -162,7 +162,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_negated_range_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -188,7 +188,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_string_match_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -214,7 +214,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_negated_string_match_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 
@@ -240,7 +240,7 @@ class FilterComponentFactoryTest extends TestCase
      */
     public function it_creates_a_composite_filter()
     {
-        $factory = new FilterComponentFactory(new FilterUriManager([
+        $factory = new FilterComponentFactory([], new FilterUriManager([
             FilterUriManager::OPT_FILTER_QUERY_PARAM => 'f',
         ]));
 

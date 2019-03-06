@@ -80,19 +80,53 @@ final class OpenCubes
      */
     public static function create(
         array $options = [],
-        PagerUriManagerInterface $pagerUriManager = null,
-        SortUriManagerInterface $sortUriManager = null,
-        FilterUriManagerInterface $filterUriManager = null,
-        BreakDownUriManagerInterface $breakDownUriManager = null
+        ...$args
     ): self {
-        $pagerUriManager = $pagerUriManager ?? new PagerUriManager($options[PagerComponent::getName() . '_uri'] ?? []);
-        $sortUriManager = $sortUriManager ?? new SortUriManager($options[SortComponent::getName() . '_uri'] ?? [], $pagerUriManager);
-        $filterUriManager = $filterUriManager ?? new FilterUriManager($options[FilterComponent::getName() . '_uri'] ?? [], $pagerUriManager);
-        $breakDownUriManager = $breakDownUriManager ?? new BreakDownUriManager($options[BreakDownComponent::getName() . '_uri'] ?? [], $pagerUriManager, $sortUriManager);
+
+        $pagerUriManager = (function (array $args) use ($options): PagerUriManagerInterface {
+            foreach ($args as $arg) {
+                if ($arg instanceof PagerUriManagerInterface) {
+                    return $arg;
+                }
+            }
+
+            return new PagerUriManager($options[PagerComponent::getName() . '_uri'] ?? []);
+        })($args);
+
+        $sortUriManager = (function (array $args) use ($options, $pagerUriManager): SortUriManagerInterface {
+            foreach ($args as $arg) {
+                if ($arg instanceof SortUriManagerInterface) {
+                    return $arg;
+                }
+            }
+
+            return new SortUriManager($options[SortComponent::getName() . '_uri'] ?? [], $pagerUriManager);
+        })($args);
+
+        $filterUriManager = (function (array $args) use ($options, $pagerUriManager): FilterUriManagerInterface {
+            foreach ($args as $arg) {
+                if ($arg instanceof FilterUriManagerInterface) {
+                    return $arg;
+                }
+            }
+
+            return new FilterUriManager($options[FilterComponent::getName() . '_uri'] ?? [], $pagerUriManager);
+        })($args);
+
+        $breakDownUriManager = (function (array $args) use ($options, $pagerUriManager, $sortUriManager): BreakDownUriManagerInterface {
+            foreach ($args as $arg) {
+                if ($arg instanceof BreakDownUriManagerInterface) {
+                    return $arg;
+                }
+            }
+
+            return new BreakDownUriManager($options[BreakDownComponent::getName() . '_uri'] ?? [], $pagerUriManager, $sortUriManager);
+        })($args);
+
         return new self([
             new PagerComponentFactory($options[PagerComponent::getName()] ?? [], $pagerUriManager),
             new SortComponentFactory($options[SortComponent::getName()] ?? [], $sortUriManager),
-            new FilterComponentFactory($filterUriManager),
+            new FilterComponentFactory($options[FilterComponent::getName()] ?? [], $filterUriManager),
             new BreakDownComponentFactory($options[BreakDownComponent::getName()] ?? [], $breakDownUriManager),
         ]);
     }

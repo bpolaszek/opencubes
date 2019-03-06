@@ -27,9 +27,16 @@ final class FilterComponentFactory implements ComponentFactoryInterface
 
     /**
      * FilterComponentFactory constructor.
+     * @param array                          $options - This component doesn't have options yet, but let's keep the same signature, just in case
      * @param FilterUriManagerInterface|null $uriManager
+     * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
+     * @throws \Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @throws \Symfony\Component\OptionsResolver\Exception\MissingOptionsException
+     * @throws \Symfony\Component\OptionsResolver\Exception\NoSuchOptionException
+     * @throws \Symfony\Component\OptionsResolver\Exception\OptionDefinitionException
+     * @throws \Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
      */
-    public function __construct(FilterUriManagerInterface $uriManager = null)
+    public function __construct(array $options = [], FilterUriManagerInterface $uriManager = null)
     {
         $this->uriManager = $uriManager ?? new FilterUriManager();
     }
