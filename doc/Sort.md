@@ -7,9 +7,7 @@ The Sort component will help you:
 - Provide your user which sorting options are available
 
 
-## The SortComponentFactory
-
-The factory will handle your default options and is responsible to instanciate Sort components.
+## Instanciating the component
 
 Configurable options are:
 - Available sorts (which sorting options you will offer to your users)
@@ -17,25 +15,18 @@ Configurable options are:
 - Applied sorts (hydrated from Uri)
 - Is multisort enabled (do you allow sorting on multiple fields)
 
-### Overview
-
 ```php
-use BenTools\OpenCubes\Component\Sort\SortComponentFactory;
-use BenTools\OpenCubes\Component\Sort\SortUriManager;
-use function BenTools\OpenCubes\current_location;
+use BenTools\OpenCubes\OpenCubes;
 
-$sortingFactory = new SortComponentFactory([
-    SortComponentFactory::OPT_AVAILABLE_SORTS => [
-        'created_at' => ['asc', 'desc'],
-        'price'      => ['desc', 'asc'],
-        'random'     => ['rand'],
+$openCubes = OpenCubes::create([
+    'sort' => [
+        'available_sorts' => ['device' => ['asc', 'desc'], 'country' => ['asc', 'desc']],
+        'default_sorts' => ['date' => 'asc'],
     ],
-    SortComponentFactory::OPT_DEFAULT_SORTS => [
-        'name' => 'asc',
-    ],
-], new SortUriManager([
-    SortUriManager::OPT_SORT_QUERY_PARAM => 'order_by',
-]));
+    'sort_uri' => [
+        'query_param' => 'order_by',
+    ]
+]);
 
-$sorting = $sortingFactory->createComponent(current_location());
+$sorting = $openCubes->getComponent('sort');
 ```

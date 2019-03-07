@@ -9,9 +9,7 @@ This component will help you know:
 - Which breakdown is currently applied (and the Uri to remove it)
 - Which breakdowns are available (and the Uris to apply them).
 
-## The BreakDownComponentFactory
-
-The factory will handle your default options and is responsible to instanciate BreakDown components.
+## Instanciating the component
 
 Configurable options are:
 - Available breakdown groups (which breakdown options you will offer to your users)
@@ -19,35 +17,19 @@ Configurable options are:
 - Applied breakdown groups (hydrated from Uri)
 - Is multigroup enabled (do you allow breaking down on multiple groups)
 
-### Overview
-
 ```php
-use BenTools\OpenCubes\Component\BreakDown\BreakDownComponentFactory;
-use function BenTools\OpenCubes\current_location;
+use BenTools\OpenCubes\OpenCubes;
 
-$breakdownFactory = new BreakDownComponentFactory([
-    BreakDownComponentFactory::OPT_AVAILABLE_GROUPS => [
-        'date',
-        'device',
-        'browser',
-        'country',
+$openCubes = OpenCubes::create([
+    'breakdown' => [
+        'available_groups' => ['device', 'country', 'date'],
+        'default_groups' => ['date'],
     ],
-    BreakDownComponentFactory::OPT_DEFAULT_GROUPS => [
-        'date',
+    'breakdown_uri' => [
+        'query_param' => 'group_by',
+        'remove_sort' => true, // Reset applied sort after grouping
     ]
 ]);
 
-$component = $breakdownFactory->createComponent(current_location());
-```
-
-### The BreakDownUriManager
-
-```php
-use BenTools\OpenCubes\Component\BreakDown\BreakDownUriManager;
-
-$uriManager = new BreakDownUriManager([
-    BreakDownUriManager::OPT_BREAKDOWN_QUERY_PARAM => 'group_by', // default is 'breakdown'
-]);
-
-$breakdownFactory = new BreakDownComponentFactory($options, $uriManager);
+$breakdown = $openCubes->getComponent('breakdown');
 ```

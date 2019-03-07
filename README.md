@@ -9,7 +9,11 @@
 
 ## Overview
 
-Consider you're browsing `https://your.application/books?page=3&per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[category_id]=12&filters[tags][]=foo&filters[tags][]=bar&filters[name][NOT][STARTS_WITH]=foo`:
+Look at the following URL: 
+
+> https://your.application/books?page=3&per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01+TO+2019-01-31]&filters[category_id]=12&filters[tags][]=foo&filters[tags][]=bar&filters[name][NOT][STARTS_WITH]=foo
+
+Here's how OpenCubes parses it:
 
 ```php
 use BenTools\OpenCubes\Component\Filter\FilterComponent;
@@ -66,15 +70,21 @@ foreach ($filters->getAppliedFilters() as $filter) {
 }
 ```
 
-Now, you can ask your persistence system (Doctrine, ElasticSearch, Solr, 3rd-party API, ...) to return books:
+Now, we can ask our persistence system (Doctrine, ElasticSearch, Solr, 3rd-party API, ...) to return books:
 
-- From offset `100` to `150`
+- From offset `100`, limit to `50` items
 - Ordered by `author.name`
 - Published between `2019-01-01` and `2019-01-31`
 - In category id `12`
 - Having tags `foo` or `bar`
 - But their names must not start by `foo`.
 
+
+## Customization
+
+Each component comes with a lot of customization possibilities.
+
+[Read More...](doc/Customization.md)
 
 ## HATEOAS
 
@@ -87,165 +97,7 @@ Now, you can ask your persistence system (Doctrine, ElasticSearch, Solr, 3rd-par
 
 Each native component (you're free to create your own ones) comes with a default JSON serialization which exposes the appropriate Urls.
 
-```php
-echo json_encode([
-    'filters' => $filters,
-    'sorting' => $sorting,
-], JSON_PRETTY_PRINT);
-```
-
-```json
-{
-  "filters": {
-    "published_at": {
-      "type": "range",
-      "field": "published_at",
-      "left": "2019-01-01",
-      "right": "2019-01-31",
-      "is_applied": true,
-      "is_negated": false,
-      "unset_link": "https://your.application/books?per_page=50&sort[author.name]=asc&filters[category_id]=12&filters[tags][]=foo&filters[tags][]=bar&filters[name][NOT][STARTS_WITH]=foo"
-    },
-    "category_id": {
-      "type": "simple",
-      "field": "category_id",
-      "value": {
-        "key": "12",
-        "value": "12",
-        "is_applied": true,
-        "count": null,
-        "unset_link": "https://your.application/books?per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[tags][]=foo&filters[tags][]=bar&filters[name][NOT][STARTS_WITH]=foo"
-      },
-      "is_applied": true,
-      "is_negated": false,
-      "unset_link": "https://your.application/books?per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[tags][]=foo&filters[tags][]=bar&filters[name][NOT][STARTS_WITH]=foo"
-    },
-    "tags": {
-      "type": "collection",
-      "field": "tags",
-      "satisfied_by": "ANY",
-      "is_applied": true,
-      "is_negated": false,
-      "values": [
-        {
-          "key": "foo",
-          "value": "foo",
-          "is_applied": true,
-          "count": null,
-          "unset_link": null
-        },
-        {
-          "key": "bar",
-          "value": "bar",
-          "is_applied": true,
-          "count": null,
-          "unset_link": null
-        }
-      ],
-      "unset_link": "https://your.application/books?per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[category_id]=12&filters[name][NOT][STARTS_WITH]=foo"
-    },
-    "name": {
-      "type": "string_match",
-      "field": "name",
-      "operator": "STARTS_WITH",
-      "value": {
-        "key": "foo",
-        "value": "foo",
-        "is_applied": true,
-        "count": null,
-        "unset_link": "https://your.application/books?per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[category_id]=12&filters[tags][]=foo&filters[tags][]=bar"
-      },
-      "is_applied": true,
-      "is_negated": true,
-      "unset_link": "https://your.application/books?per_page=50&sort[author.name]=asc&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[category_id]=12&filters[tags][]=foo&filters[tags][]=bar"
-    }
-  },
-  "sorting": {
-    "sorts": [
-      {
-        "field": "author.name",
-        "is_applied": true,
-        "directions": [
-          {
-            "field": "author.name",
-            "direction": "asc",
-            "is_applied": true,
-            "unset_link": "https://your.application/books?per_page=50&filters[published_at]=[2019-01-01 TO 2019-01-31]&filters[category_id]=12&filters[tags][]=foo&filters[tags][]=bar&filters[name][NOT][STARTS_WITH]=foo"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-## Customization
-
-Each component comes with a lot of customization possibilities. Example with the Sort Component:
-
-```php
-use BenTools\OpenCubes\Component\Filter\FilterComponent;
-use BenTools\OpenCubes\Component\Sort\SortComponent;
-use BenTools\OpenCubes\OpenCubes;
-
-$openCubes = OpenCubes::create([
-    'sort_uri' => [
-        'query_param' => 'order_by',
-    ],
-]);
-$sorting = $openCubes->getComponent(SortComponent::getName(), [
-    'available_sorts' => [
-        'published_at' => ['asc', 'desc'],
-    ],
-]);
-
-
-echo json_encode([
-    'sorting' => $sorting,
-], JSON_PRETTY_PRINT);
-```
-
-Now, browse `https://your.application/books?order_by[author.name]=asc`:
-
-```json
-{
-  "sorting": {
-    "sorts": [
-      {
-        "field": "published_at",
-        "is_applied": false,
-        "directions": [
-          {
-            "field": "published_at",
-            "direction": "asc",
-            "is_applied": false,
-            "link": "https://your.application/books?order_by[published_at]=asc"
-          },
-          {
-            "field": "published_at",
-            "direction": "desc",
-            "is_applied": false,
-            "link": "https://your.application/books?order_by[published_at]=desc"
-          }
-        ]
-      },
-      {
-        "field": "author.name",
-        "is_applied": true,
-        "directions": [
-          {
-            "field": "author.name",
-            "direction": "asc",
-            "is_applied": true,
-            "unset_link": "https://your.application/books"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
+[Read More...](doc/HATEOAS.md)
 
 ## Dive into components
 
@@ -257,12 +109,13 @@ Now, browse `https://your.application/books?order_by[author.name]=asc`:
 
 ## Installation
 
-_OpenCubes is still at its early stage of development and subject to breaking changes. Feel free to contribute or report any issue._ 
+_OpenCubes is still at its early stage of development and subject to breaking changes._
+ 
+_Feel free to contribute or report any issue._ 
 
 ```bash
-composer require bentools/opencubes:dev-master
+composer require bentools/opencubes:1.0.x-dev
 ```
-
 
 ## Tests
 
