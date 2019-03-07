@@ -72,6 +72,7 @@ final class SortComponentFactory implements ComponentFactoryInterface
 
     /**
      * @inheritDoc
+     * @return SortComponent
      */
     public function createComponent(UriInterface $uri, array $options = []): ComponentInterface
     {

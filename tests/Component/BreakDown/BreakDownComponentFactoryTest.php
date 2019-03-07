@@ -6,12 +6,21 @@ use BenTools\OpenCubes\Component\BreakDown\BreakDownComponent;
 use BenTools\OpenCubes\Component\BreakDown\BreakDownComponentFactory;
 use BenTools\OpenCubes\Component\BreakDown\BreakDownUriManager;
 use BenTools\OpenCubes\Component\BreakDown\Model\Group;
-use function BenTools\OpenCubes\stringify_uri;
 use PHPUnit\Framework\TestCase;
+use function BenTools\OpenCubes\stringify_uri;
 use function BenTools\UriFactory\Helper\uri;
 
 class BreakDownComponentFactoryTest extends TestCase
 {
+
+    /**
+     * @test
+     */
+    public function it_supports_breakdown_component()
+    {
+        $factory = new BreakDownComponentFactory();
+        $this->assertTrue($factory->supports(BreakDownComponent::getName()));
+    }
 
     /**
      * @test

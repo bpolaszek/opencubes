@@ -19,6 +19,16 @@ class FilterComponentFactoryTest extends TestCase
     /**
      * @test
      */
+    public function it_supports_filter_component()
+    {
+        $factory = new FilterComponentFactory();
+        $this->assertTrue($factory->supports(FilterComponent::getName()));
+    }
+
+
+    /**
+     * @test
+     */
     public function it_creates_a_simple_filter()
     {
         $factory = new FilterComponentFactory([], new FilterUriManager([

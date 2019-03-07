@@ -191,11 +191,15 @@ function remove_null_values(array $array)
  * @return mixed
  * @throws \InvalidArgumentException
  */
-function first_of(iterable $items)
+function first_of(iterable $items, bool $throwErrorWhenEmpty = false)
 {
     foreach ($items as $item) {
         return $item;
     }
 
-    throw new \InvalidArgumentException('Expected at least 1 item');
+    if (true === $throwErrorWhenEmpty) {
+        throw new \InvalidArgumentException('Expected at least 1 item');
+    }
+
+    return null;
 }

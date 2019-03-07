@@ -35,6 +35,56 @@ final class SortComponent implements ComponentInterface, IteratorAggregate, Coun
     }
 
     /**
+     * @param string $field
+     * @param null   $direction
+     * @return bool
+     */
+    public function has(string $field, $direction = null): bool
+    {
+        if (1 === func_num_args()) {
+            foreach ($this->sorts as $sort) {
+                if ($sort->getField() === $field) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        foreach ($this->sorts as $sort) {
+            if ($sort->getField() === $field && $sort->getDirection() === $direction) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $field
+     * @param null   $direction
+     * @return Sort[]
+     */
+    public function get(string $field, $direction = null): iterable
+    {
+        if (1 === func_num_args()) {
+            foreach ($this->sorts as $sort) {
+                if ($sort->getField() === $field) {
+                    yield $sort;
+                }
+            }
+
+            return;
+        }
+
+        foreach ($this->sorts as $sort) {
+            if ($sort->getField() === $field && $sort->getDirection() === $direction) {
+                yield $sort;
+            }
+        }
+    }
+
+    /**
      * @return Sort[]
      */
     public function all(): array
