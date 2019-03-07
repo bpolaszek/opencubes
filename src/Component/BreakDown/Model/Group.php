@@ -54,7 +54,7 @@ final class Group implements \JsonSerializable
     /**
      * @return UriInterface
      */
-    public function getUri(): ?UriInterface
+    public function getToggleUri(): ?UriInterface
     {
         return $this->uri;
     }

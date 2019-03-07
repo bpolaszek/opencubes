@@ -96,7 +96,7 @@ class BreakDownComponentFactoryTest extends TestCase
         $this->assertTrue($component->get('foo')->isApplied());
         $this->assertFalse($component->get('bar')->isApplied());
 
-        $this->assertEquals('/?group_by[]=foo&group_by[]=bar', stringify_uri($component->get('bar')->getUri()));
+        $this->assertEquals('/?group_by[]=foo&group_by[]=bar', stringify_uri($component->get('bar')->getToggleUri()));
 
 
         $component = $factory->createComponent($uri, [
@@ -110,6 +110,6 @@ class BreakDownComponentFactoryTest extends TestCase
         $this->assertTrue($component->get('foo')->isApplied());
         $this->assertFalse($component->get('bar')->isApplied());
 
-        $this->assertEquals('/?group_by[]=bar', stringify_uri($component->get('bar')->getUri()));
+        $this->assertEquals('/?group_by[]=bar', stringify_uri($component->get('bar')->getToggleUri()));
     }
 }
