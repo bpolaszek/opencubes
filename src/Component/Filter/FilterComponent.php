@@ -32,7 +32,7 @@ final class FilterComponent implements ComponentInterface, IteratorAggregate, Co
      */
     public static function getName(): string
     {
-        return 'filters';
+        return 'filter';
     }
 
     /**
