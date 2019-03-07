@@ -8,6 +8,7 @@ use BenTools\OpenCubes\Component\Pager\Model\PageSize;
 use BenTools\OpenCubes\OptionsTrait;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use function BenTools\OpenCubes\contains_only_integers;
 
 final class PagerComponentFactory implements ComponentFactoryInterface
 {
@@ -57,7 +58,10 @@ final class PagerComponentFactory implements ComponentFactoryInterface
         ]);
 
         $resolver->setAllowedTypes(self::OPT_TOTAL_ITEMS, ['int']);
-        $resolver->setAllowedTypes(self::OPT_AVAILABLE_PAGESIZES, 'int[]');
+        $resolver->setAllowedTypes(self::OPT_AVAILABLE_PAGESIZES, 'array');
+        $resolver->setAllowedValues(self::OPT_AVAILABLE_PAGESIZES, function ($value) {
+            return is_array($value) && contains_only_integers($value);
+        });
         $resolver->setAllowedTypes(self::OPT_DEFAULT_PAGESIZE, ['int']);
         $resolver->setAllowedTypes(self::OPT_ENABLED, 'bool');
         $resolver->setAllowedTypes(self::OPT_DELTA, ['null', 'int']);

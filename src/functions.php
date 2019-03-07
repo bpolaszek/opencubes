@@ -50,6 +50,20 @@ function contains_only_scalars(iterable $iterable): bool
 }
 
 /**
+ * @param iterable $iterable
+ * @return bool
+ */
+function contains_only_integers(iterable $iterable): bool
+{
+    foreach ($iterable as $item) {
+        if (!is_int($item)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * @param UriFactoryInterface|null $factory
  * @return UriInterface
  * @throws \RuntimeException
