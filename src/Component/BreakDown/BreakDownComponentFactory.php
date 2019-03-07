@@ -72,6 +72,7 @@ final class BreakDownComponentFactory implements ComponentFactoryInterface
 
     /**
      * @inheritDoc
+     * @return BreakDownComponent
      */
     public function createComponent(UriInterface $uri, array $options = []): ComponentInterface
     {

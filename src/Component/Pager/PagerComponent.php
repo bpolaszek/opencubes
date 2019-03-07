@@ -183,7 +183,7 @@ final class PagerComponent implements ComponentInterface, Countable, JsonSeriali
             return 1;
         }
 
-        return ceil($this->getNbItems() / $this->getPerPage());
+        return max(1, ceil($this->getNbItems() / $this->getPerPage()));
     }
 
     /**

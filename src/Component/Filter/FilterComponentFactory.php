@@ -51,6 +51,7 @@ final class FilterComponentFactory implements ComponentFactoryInterface
 
     /**
      * @inheritDoc
+     * @return FilterComponent
      */
     public function createComponent(UriInterface $uri, array $options = []): ComponentInterface
     {
