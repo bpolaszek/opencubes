@@ -1,28 +1,18 @@
 # OpenCubes
 
-OpenCubes is a set of components that you can use in any PHP project to translate (PSR-7) Uris into different kinds of value objects:
+**OpenCubes** is a set of components that you can use in any PHP project to translate (PSR-7) Uris into different kinds of value objects:
 
 - Pagination
 - Applied filters
 - Applied sorts
 - ...
 
-For example, when a User hits `https://your.application/books?page=3&per_page=50&sort[author.name]=asc&filters[editor_id][]=5`, your application will probably know that it should retrieve some books but you generally translate sort, filters and pagination from the query string by yourself.
+For example, when a User hits `https://your.application/books?page=3&per_page=50&sort[author.name]=asc&filters[editor_id][]=5`, your controller will have to parse the query parameters to make your internal requests to your persistence system (Doctrine, ElasticSearch, a 3rd-party API, ...).
 
-With OpenCubes, for each component, you will be able to define:
+**OpenCubes** comes in the middle: it parses the URI and gives you Pagination, Filter and Sort objects, with default settings that you can define at the application and/or at the request level.
 
-- The default settings at the application level (for example, the number of results per page)
-- The default settings at the request level (for exemple, the default sorting of books if none is provided)
-- An URL parser (to get the user's settings from the query string - but keep calm, we provide a default implementation!) 
+Besides, **OpenCubes** components can bring HATEOAS to your application by providing URIs for different actions: apply / unset filter, apply / unset sorting, etc.
 
-Another great feature of OpenCubes is that it provides a default JSON serialization for each component: 
-when you're working on API-centric applications, you can expose these components and your front-end (React, VueJS, Angular, or anything) will precisely know:
-
-- Which filters have been applied (and the URIs to remove them)
-- Which sorts have been applied (and the URIs to remove them), and which other sorts are available (and the URIs to apply them)
-- Which page size has been applied (and the URI to remove it), and which other page sizes are available  (and the URIs to apply them)
-
-We work hard to cover most of use cases, but you can define your own component factories, your own URL parsers & builders, and even your own components!
 
 ## Overview
 
