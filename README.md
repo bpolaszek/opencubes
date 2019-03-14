@@ -1,3 +1,10 @@
+[![Latest Stable Version](https://poser.pugx.org/bentools/opencubes/v/stable)](https://packagist.org/packages/bentools/opencubes)
+[![License](https://poser.pugx.org/bentools/opencubes/license)](https://packagist.org/packages/bentools/opencubes)
+[![Build Status](https://img.shields.io/travis/bpolaszek/opencubes/master.svg?style=flat-square)](https://travis-ci.org/bpolaszek/opencubes)
+[![Coverage Status](https://coveralls.io/repos/github/bpolaszek/opencubes/badge.svg?branch=master)](https://coveralls.io/github/bpolaszek/opencubes?branch=master)
+[![Quality Score](https://img.shields.io/scrutinizer/g/bpolaszek/opencubes.svg?style=flat-square)](https://scrutinizer-ci.com/g/bpolaszek/opencubes)
+[![Total Downloads](https://poser.pugx.org/bentools/opencubes/downloads)](https://packagist.org/packages/bentools/opencubes)
+
 # OpenCubes
 
 **OpenCubes** is a framework-agnostic set of components that parses PSR-7 URIs into value objects:
