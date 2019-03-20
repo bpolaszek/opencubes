@@ -140,6 +140,10 @@ class PagerComponentFactoryTest extends TestCase
 
     }
 
+
+    /**
+     * @test
+     */
     public function it_generates_the_pagesizes()
     {
         $factory = new PagerComponentFactory([
@@ -162,6 +166,37 @@ class PagerComponentFactoryTest extends TestCase
         $pageSizes = $component->getPageSizes();
         $this->assertCount(4, $pageSizes);
 
+    }
+
+
+    /**
+     * @test
+     */
+    public function it_successfully_disables_the_pager()
+    {
+        $factory = new PagerComponentFactory([
+            PagerComponentFactory::OPT_AVAILABLE_PAGESIZES => [10, 20, 50],
+            PagerComponentFactory::OPT_ENABLED => false,
+        ]);
+
+        $uri = uri('https://example.org/');
+        $component = $factory->createComponent($uri);
+        $pageSizes = $component->getPageSizes();
+        $this->assertCount(3, $pageSizes);
+
+        $uri = uri('https://example.org/?per_page=10');
+        $component = $factory->createComponent($uri);
+        $pageSizes = $component->getPageSizes();
+        $this->assertCount(3, $pageSizes);
+
+        $uri = uri('https://example.org/?per_page=40');
+        $component = $factory->createComponent($uri);
+        $pageSizes = $component->getPageSizes();
+        $this->assertCount(3, $pageSizes);
+
+        $this->assertFalse($component->isEnabled());
+        $this->assertCount(1, $component);
+        $this->assertEquals($component->getNbItems(), $component->getPerPage());
     }
 
 }

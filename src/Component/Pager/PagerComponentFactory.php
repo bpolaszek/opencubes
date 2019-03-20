@@ -93,7 +93,7 @@ final class PagerComponentFactory implements ComponentFactoryInterface
         $delta = $this->getOption(self::OPT_DELTA, $options);
 
         if (false === $this->getOption(self::OPT_ENABLED, $options)) {
-            $currentSize = $totalItems;
+            $currentSize = null;
             $currentPageNumber = 1;
         }
 
@@ -119,7 +119,7 @@ final class PagerComponentFactory implements ComponentFactoryInterface
      */
     private function createPageSizes(UriInterface $uri, ?int $currentSize, array $sizes): array
     {
-        if (!in_array($currentSize, $sizes)) {
+        if (null !== $currentSize && !in_array($currentSize, $sizes)) {
             $sizes[] = $currentSize;
         }
 

@@ -64,9 +64,9 @@ final class PagerComponent implements ComponentInterface, Countable, JsonSeriali
     public function __construct(
         UriInterface $baseUri,
         int $totalItems = 0,
-        int $perPage = null,
+        ?int $perPage = null,
         int $currentPageNumber = 1,
-        int $delta = null,
+        ?int $delta = null,
         array $pageSizes = [],
         PagerUriManagerInterface $uriManager = null
     ) {
