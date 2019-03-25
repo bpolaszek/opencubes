@@ -33,12 +33,13 @@ use BenTools\OpenCubes\Component\Filter\Model\StringMatchFilter;
 use BenTools\OpenCubes\OpenCubes;
 
 $openCubes = OpenCubes::create();
-$pager = $openCubes->getComponent(PagerComponent::getName(), ['total_items' => 160, 'default_size' => 50]);
+$pager = $openCubes->getComponent(PagerComponent::getName(), ['total_items' => 160, 'default_size' => 100]);
 $sorting = $openCubes->getComponent(SortComponent::getName());
 $filters = $openCubes->getComponent(FilterComponent::getName());
 
 // Pagination
 echo $pager->getCurrentPage(); // 3
+echo $pager->getPerPage(); // 50 (it would be 100 when omiting the per_page parameter)
 echo $pager->getCurrentOffset(); // 100
 echo count($pager); // 4
 
@@ -80,18 +81,22 @@ foreach ($filters->getAppliedFilters() as $filter) {
 Now, we can ask our persistence system (Doctrine, ElasticSearch, Solr, 3rd-party API, ...) to return books:
 
 - From offset `100`, limit to `50` items
-- Ordered by `author.name`
+- Ordered by `author.name` (use your own logic to parse the field path)
 - Published between `2019-01-01` and `2019-01-31`
 - In category id `12`
-- Having tags `foo` or `bar`
-- But their names must not start by `foo`.
+- Matching tag `foo` OR `bar` (AND clauses [can also be set](doc/Filter.md))
+- But their names MUST NOT start by `foo`.
+
+Translating these value objects to query your database or API is now up to you! OpenCubes provides no bridge for the moment, but maybe in a near future.
 
 
 ## Customization
 
-Each component comes with a lot of customization possibilities.
+Each component comes with a lot of customization possibilities (query parameters, default settings, ...).
 
 [Read More...](doc/Customization.md)
+
+Besides, you can also create your own URI parsers / builders by implementing [the appropriate interfaces](src/Component/Pager/PagerUriManagerInterface.php).
 
 ## HATEOAS
 
@@ -102,7 +107,8 @@ Each component comes with a lot of customization possibilities.
 - Apply / remove filter
 - ...
 
-Each native component (you're free to create your own ones) comes with a default JSON serialization which exposes the appropriate Urls.
+Each native component comes with a default JSON serialization which exposes the appropriate Urls. Being JSONserializable is not mandatory for your own components, it has been designed for a ready-to-use implementation. 
+Different serializations can be achieved through your favourite serializer ([Symfony](https://symfony.com/doc/current/components/serializer.html) / [JMS](https://jmsyst.com/libs/serializer) to name a few).
 
 [Read More...](doc/HATEOAS.md)
 
