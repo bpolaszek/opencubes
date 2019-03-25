@@ -18,4 +18,4 @@ script:
   - composer update --no-interaction --prefer-dist --prefer-lowest && ./vendor/bin/phpunit
 
 after_script:
-  - php vendor/bin/coveralls -v
+  - php vendor/bin/php-coveralls -v
