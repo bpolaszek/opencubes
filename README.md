@@ -31,17 +31,24 @@ use BenTools\OpenCubes\Component\Filter\Model\RangeFilter;
 use BenTools\OpenCubes\Component\Filter\Model\SimpleFilter;
 use BenTools\OpenCubes\Component\Filter\Model\StringMatchFilter;
 use BenTools\OpenCubes\OpenCubes;
+use function BenTools\OpenCubes\current_location;
 
 $openCubes = OpenCubes::create();
-$pager = $openCubes->getComponent(PagerComponent::getName(), ['total_items' => 160, 'default_size' => 100]);
 $sorting = $openCubes->getComponent(SortComponent::getName());
 $filters = $openCubes->getComponent(FilterComponent::getName());
+$pager = $openCubes->getComponent(
+    PagerComponent::getName(),
+    ['default_size' => 100],
+    current_location() // current_location() is the default and can be replaced by any PSR-7 Uri object
+);
 
 // Pagination
 echo $pager->getCurrentPage(); // 3
 echo $pager->getPerPage(); // 50 (it would be 100 when omiting the per_page parameter)
 echo $pager->getCurrentOffset(); // 100
-echo count($pager); // 4
+
+$pager->setNbItems(160); // Your application found 160 items
+echo count($pager); // 4 pages of 50 for 160 items
 
 // Sorting
 foreach ($sorting->getAppliedSorts() as $sort) {
@@ -74,7 +81,6 @@ foreach ($filters->getAppliedFilters() as $filter) {
         echo $filter->getOperator(); // StringMatchFilter::STARTS_WITH
         var_dump($filter->isNegated()); // true
     }
-
 }
 ```
 

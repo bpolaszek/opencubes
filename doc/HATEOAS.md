@@ -100,3 +100,5 @@ echo json_encode([
   }
 }
 ```
+
+**OpenCubes** ensures you come back to page 1 after applying / unsetting a filter / a sort option / a new page size / ...
